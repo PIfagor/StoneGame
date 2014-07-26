@@ -16,11 +16,13 @@ bool MenuLayer::init()
 		return false;
 	}
 
+
+	auto callback = std::bind(&MenuLayer::menuCloseCallback, this, this);
 	MenuItemImage *pCloseItem = MenuItemImage::create(
 		"exit.png",
 		"exit_pressed.png",
-		this,
-		menu_selector(MenuLayer::menuCloseCallback));
+		callback);
+
 	Menu* pMenu = Menu::create(pCloseItem, NULL);
 	pMenu->setPosition(Vec2(500, 500));
 	this->addChild(pMenu, 1);

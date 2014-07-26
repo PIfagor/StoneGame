@@ -35,41 +35,42 @@ bool MenuScene::init()
 		return false;
 	}
 
-	Size visibleSize = Director::sharedDirector()->getVisibleSize();
-	Vec2 origin = Director::sharedDirector()->getVisibleOrigin();
+	Size visibleSize = Director::getInstance()->getVisibleSize();
+	Vec2 origin = Director::getInstance()->getVisibleOrigin();
 
+	TTFConfig config("fonts/arial.ttf", 30);
+	this->_pLabel = Label::createWithTTF(config, "Score 0");
 
-	this->_pLabel = LabelTTF::create("Score: 0", "Arial", 30);
-
-	this->_pLabel->setPosition(ccp(origin.x + visibleSize.width / 2 + 400,
+	this->_pLabel->setPosition(Vec2(origin.x + visibleSize.width / 2 + 400,
 		origin.y + visibleSize.height - this->_pLabel->getContentSize().height));
 
-	this->addChild(this->_pLabel, 1);
+	this->addChild(this->_pLabel,1);
 
-	CCMenuItemImage *pCloseItem = CCMenuItemImage::create(
+	auto callback = std::bind(&MenuScene::menuReloadCallback,this,this);
+
+	MenuItemImage *pCloseItem = MenuItemImage::create(
 		"reload.png",
 		"reload.png",
-		this,
-		menu_selector(MenuScene::menuReloadCallback));
+		callback);
 
-	CCMenu* pMenu = CCMenu::create(pCloseItem, NULL);
-	pMenu->setPosition(ccp(45, 720));
+	Menu* pMenu = Menu::create(pCloseItem, NULL);
+	pMenu->setPosition(Vec2(45, 720));
 	this->addChild(pMenu, 1);
 
 	// add "HelloWorld" splash screen"
 	Sprite* pSprite = Sprite::create("bg.png");
 	// position the sprite on the center of the screen
-	pSprite->setPosition(ccp(visibleSize.width / 2 + origin.x, visibleSize.height / 2 + origin.y));
+	pSprite->setPosition(Vec2(visibleSize.width / 2 + origin.x, visibleSize.height / 2 + origin.y));
 	this->addChild(pSprite, 0);
 
 	Sprite* pMarker = Sprite::create("marker.png");
-	pMarker->setPosition(ccp(0, 0));
+	pMarker->setPosition(Vec2(0, 0));
 	this->addChild(pMarker, 0);
 
 	this->schedule(schedule_selector(MenuScene::update));
 
 	// IMPORTANT: enables touch events
-	//Director::sharedDirector()->getTouchDispatcher()->addStandardDelegate(this, 0);
+	//Director::getInstance()->getTouchDispatcher()->addStandardDelegate(this, 0);
 
 	_current_map = 0;
 	_grid = NULL;
@@ -94,7 +95,7 @@ bool MenuScene::init()
 	_score = 0;
 	_is_running = true;
 
-	MenuLayer* menu_layer = MenuLayer::getMenu(ccc4(0, 0, 0, 200));
+	MenuLayer* menu_layer = MenuLayer::getMenu(Color4B(0, 0, 0, 200));
 	this->addChild(menu_layer, 10, Tags::MENU_TAG);
 	menu_layer->setVisible(false);
 
@@ -105,8 +106,8 @@ bool MenuScene::init()
 
 	//SimpleAudioEngine::sharedEngine()->playBackgroundMusic(CCFileUtils::sharedFileUtils()->fullPathForFilename("cave.mp3").c_str(), true);
 
-	//Director::sharedDirector()->getTouchDispatcher()->removeDelegate(this);
-	//Director::sharedDirector()->getTouchDispatcher()->addStandardDelegate(this, 0);
+	//Director::getInstance()->getTouchDispatcher()->removeDelegate(this);
+	//Director::getInstance()->getTouchDispatcher()->addStandardDelegate(this, 0);
 
 
 
@@ -183,8 +184,8 @@ void MenuScene::show_menu()
 	MenuLayer* menu = (MenuLayer*)this->getChildByTag(Tags::MENU_TAG);
 	menu->setVisible(true);
 
-	//Director::sharedDirector()->getTouchDispatcher()->removeDelegate(this);
-	//Director::sharedDirector()->getTouchDispatcher()->addStandardDelegate(menu, 0);
+	//Director::getInstance()->getTouchDispatcher()->removeDelegate(this);
+	//Director::getInstance()->getTouchDispatcher()->addStandardDelegate(menu, 0);
 }
 
 void MenuScene::hide_menu()
@@ -192,8 +193,8 @@ void MenuScene::hide_menu()
 	MenuLayer* menu = (MenuLayer*)this->getChildByTag(Tags::MENU_TAG);
 	menu->setVisible(false);
 
-	//Director::sharedDirector()->getTouchDispatcher()->removeDelegate(menu);
-	//Director::sharedDirector()->getTouchDispatcher()->addStandardDelegate(this, 0);
+	//Director::getInstance()->getTouchDispatcher()->removeDelegate(menu);
+	//Director::getInstance()->getTouchDispatcher()->addStandardDelegate(this, 0);
 }
 
 #ifdef _WIN32
@@ -205,7 +206,7 @@ void MenuScene::check_controller()
 
 
 		if (_player->hasBtnBeenPressed(CXBOXController::BUTTON_BACK)) {
-			Director::sharedDirector()->end();
+			Director::getInstance()->end();
 		}
 
 		if (_player->hasBtnBeenPressed(CXBOXController::BUTTON_B)) {
@@ -225,7 +226,7 @@ void MenuScene::check_controller()
 		}
 
 
-		handle_joystick(0, ccp(0, 0), pt);
+		handle_joystick(0, Vec2(0, 0), pt);
 	}
 	else {
 		_connected_controller = false;
@@ -270,7 +271,7 @@ void MenuScene::check_movement()
 
 				float offset_x = ConfigVals::TILE_WIDTH;
 				float offset_y = 0;
-				float time = 0.2;
+				float time = 0.2f;
 
 				if (_mv._direction == LEFT) {
 					--next;
@@ -293,7 +294,7 @@ void MenuScene::check_movement()
 					if (_grid[nextId].getType() == SpriteType::GLASS)  {
 						_grid[nextId].getSprite()->setVisible(false);
 						_last_glass_id = nextId;
-						this->scheduleOnce(schedule_selector(MenuScene::object_has_fallen), 0.3);
+						this->scheduleOnce(schedule_selector(MenuScene::object_has_fallen), 0.3f);
 					}
 				}
 
@@ -442,7 +443,7 @@ void MenuScene::hide_controls()
 //	CCSetIterator it;
 //	CCTouch* touch;
 //
-//	Size DesResolution = Director::sharedDirector()->getWinSize();
+//	Size DesResolution = Director::getInstance()->getWinSize();
 //
 //	for (it = pTouches->begin(); it != pTouches->end(); it++) {
 //
@@ -482,7 +483,7 @@ float angleBetweenLinesInRadians(Vec2 line1Start, Vec2 line1End)
 	float rads = atan2(line1End.y - line1Start.y, line1End.x - line1Start.x);
 
 	if (rads < 0) {
-		rads += (2 * 3.14);
+		rads += (2 * 3.14f);
 	}
 
 	return rads;
@@ -527,7 +528,7 @@ void MenuScene::handle_joystick(int touch_id, const Vec2 & origin, const Vec2 & 
 			float new_x = back_x + delta_x / scale;
 			float new_y = back_y + delta_y / scale;
 
-			this->_stick->setPosition(ccp(new_x, new_y));
+			this->_stick->setPosition(Vec2(new_x, new_y));
 		}
 
 		if (delta > 25) {
@@ -593,7 +594,7 @@ void MenuScene::menuCloseCallback(Ref* pSender)
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_WINRT) || (CC_TARGET_PLATFORM == CC_PLATFORM_WP8)
 	CCMessageBox("You pressed the close button. Windows Store Apps do not implement a close button.", "Alert");
 #else
-	Director::sharedDirector()->end();
+	Director::getInstance()->end();
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_IOS)
 	exit(0);
 #endif
@@ -641,7 +642,7 @@ void MenuScene::draw_grid(std::string map)
 		throw "Parse error";
 	}
 
-	Size DesResolution = Director::sharedDirector()->getWinSize();
+	Size DesResolution = Director::getInstance()->getWinSize();
 
 	int offset_bottom = (DesResolution.height - ConfigVals::TILE_HEIGHT * 16) / 2;
 	int offset_left = (DesResolution.width - ConfigVals::TILE_WIDTH * 20) / 2;
@@ -706,12 +707,12 @@ void MenuScene::draw_grid(std::string map)
 										}
 
 
-										temp->setAnchorPoint(ccp(0, 0));
+										temp->setAnchorPoint(Vec2(0, 0));
 
 										float x = j * ConfigVals::TILE_WIDTH;
 										float y = i * ConfigVals::TILE_HEIGHT;
 
-										temp->setPosition(ccp(x + offset_left, y + offset_bottom));
+										temp->setPosition(Vec2(x + offset_left, y + offset_bottom));
 										this->addChild(temp, Tags::TILE, Tags::TILE);
 
 										_grid[absolute_index] = MapTile(tp, temp, absolute_index);
@@ -767,7 +768,7 @@ void MenuScene::load_maps()
 	}
 
 
-	for (int i = 0; i < document.Size(); ++i)
+	for (size_t i = 0; i < document.Size(); ++i)
 	{
 		std::string elem = document[i].GetString() + std::string(".json");
 		this->_map_vector.push_back(elem);

@@ -81,7 +81,7 @@ private:
 	// vars
 	MapTile*			_grid;
 	move_controller		_mv;
-	LabelTTF*			_pLabel;
+	Label*			_pLabel;
 
 	Sprite*					_joy;
 	Sprite*					_stick;
@@ -96,7 +96,7 @@ private:
 	int							_crystal_number;
 
 	std::vector<std::string>	_map_vector;
-	int							_current_map;
+	size_t							_current_map;
 
 	int							_last_glass_id;
 
