@@ -44,9 +44,9 @@ bool MenuScene::init()
 	this->_pLabel->setPosition(Vec2(origin.x + visibleSize.width / 2 + 400,
 		origin.y + visibleSize.height - this->_pLabel->getContentSize().height));
 
-	this->addChild(this->_pLabel,1);
+	this->addChild(this->_pLabel, 1);
 
-	auto callback = std::bind(&MenuScene::menuReloadCallback,this,this);
+	auto callback = std::bind(&MenuScene::menuReloadCallback, this, this);
 
 	MenuItemImage *pCloseItem = MenuItemImage::create(
 		"reload.png",
@@ -318,17 +318,31 @@ void MenuScene::check_movement()
 						_score += 10;
 						update_score();
 					}
+					if (_grid[nextId].getType() == SpriteType::GHOSTWALL) {
+						_score += 100;
+						update_score();
+					}
 				}
 
 
 
 				std::swap(_grid[nextId], _grid[oldId]);
 				this->_user = &_grid[nextId];
-
+				
 				//WALK;
-				if (_grid[oldId].getSprite() != nullptr && _grid[oldId].getSprite()->isVisible()) {
-					_grid[oldId].getSprite()->setVisible(false);
+				if (_grid[oldId].getType() != SpriteType::GHOSTWALL) {
+					
+					if (_grid[oldId].getSprite() != nullptr && _grid[oldId].getSprite()->isVisible()) {
+						_grid[oldId].getSprite()->setVisible(false);
+					}
 				}
+				else
+				{
+					int i = 0;
+					CCLOG("lol"+i);
+				
+				}
+				
 
 				_user->setId(nextId);
 				make_move();
@@ -382,7 +396,8 @@ void MenuScene::check_top_tiles(int user_pos)
 	while (_grid[top_id].getType() == SpriteType::CRYSTAL
 		|| _grid[top_id].getType() == SpriteType::STONE
 		|| _grid[top_id].getType() == SpriteType::GLASS
-		|| _grid[top_id].getType() == SpriteType::NONE) {
+		|| _grid[top_id].getType() == SpriteType::NONE
+		) {
 
 		if (_grid[top_id].getSprite()->isVisible()) {
 			_grid[top_id].move(this, time, offset_x, offset_y, NULL);
@@ -620,7 +635,7 @@ void MenuScene::draw_grid(std::string map)
 	const std::string USER = "USER";
 	const std::string EMPTY = "EMPTY";
 	const std::string GLASS = "GLASS";
-
+	const std::string GHOSTWALL = "GHOSTWALL";
 
 
 	////get relative path
@@ -634,9 +649,9 @@ void MenuScene::draw_grid(std::string map)
 	//std::string content;
 	//content.append((char*)(pBuffer));
 	//content = content.substr(0, fileSize);
-		
+
 	std::string content = FileUtils::getInstance()->getStringFromFile(map);
-		rapidjson::Document document;
+	rapidjson::Document document;
 	if (document.Parse<0>(content.c_str()).HasParseError()) {
 		//CCLOG("PARSE ERROR");
 		throw "Parse error";
@@ -693,6 +708,10 @@ void MenuScene::draw_grid(std::string map)
 									tp = SpriteType::STONE;
 								}
 								else
+									if (type == GHOSTWALL) {
+										tp = SpriteType::GHOSTWALL;
+									}
+									else
 
 									if (type == GLASS) {
 										tp = SpriteType::GLASS;
@@ -758,7 +777,7 @@ void MenuScene::load_maps()
 	content.append((char*)(pBuffer));
 	content = content.substr(0, fileSize);*/
 
-	
+
 	std::string content = FileUtils::getInstance()->getStringFromFile("AAMapList.json");
 
 	rapidjson::Document document;

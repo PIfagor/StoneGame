@@ -2,7 +2,7 @@
 #define _ENUMS_H_
 
 enum Dir { TOP, BOTTOM, LEFT, RIGHT };
-enum SpriteType { NONE, BORDER, SAND, STONE, CRYSTAL, GLASS, USER };
+enum SpriteType { NONE, BORDER, SAND, STONE, CRYSTAL, GLASS, USER, GHOSTWALL };
 
 
 enum ConfigVals {
