@@ -34,6 +34,7 @@ private:
 	Sprite*	_tile;
 	int			_id;
 	bool		_is_blocked;
+
 	bool		_underHero;
 };
 

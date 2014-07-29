@@ -212,6 +212,10 @@ void MenuScene::check_controller()
 			menuReloadCallback(NULL);
 		}
 
+		if (_player->hasBtnBeenPressed(CXBOXController::BUTTON_Y)) {
+			menuReloadCallback(NULL);
+		}
+
 		if (_player->hasBtnBeenPressed(CXBOXController::BUTTON_START)) {
 			handle_menu();
 		}
@@ -322,10 +326,7 @@ void MenuScene::check_movement()
 						update_score();
 					}
 					
-					if (_grid[nextId].getType() == SpriteType::EXIT) {
-						_score += 100;
-						update_score();
-					}
+					
 				}
 
 
@@ -333,7 +334,11 @@ void MenuScene::check_movement()
 				std::swap(_grid[nextId], _grid[oldId]);
 
 				this->_user = &_grid[nextId];
-			
+
+				if (_grid[oldId].getType() == SpriteType::EXIT) {
+					_score += 100;
+					update_score();
+				}
 				//WALK;
 				if (_grid[oldId].getType() != SpriteType::EXIT) {
 					
@@ -728,6 +733,7 @@ void MenuScene::draw_grid(std::string map)
 									else
 
 										if (type == USER) {
+											this->_user = &_grid[absolute_index];
 											tp = SpriteType::USER;
 										}
 										else {
@@ -761,7 +767,8 @@ void MenuScene::draw_grid(std::string map)
 			}*/
 
 			if (tp == SpriteType::USER) {
-				this->_user = &_grid[absolute_index];
+				//this->_user = &_grid[absolute_index];
+				//tp = SpriteType::USER;
 			}
 
 
@@ -837,7 +844,12 @@ bool MenuScene::isOnBounds(int index)
 	if (_grid[index].getType() == SpriteType::BORDER) {
 		return true;
 	}
-
+	if (_grid[index].getType() == SpriteType::EXIT){
+		if (this->_crystal_number == 1) {
+			return false;
+		}
+		return true;
+	}
 	return false;
 }
 
