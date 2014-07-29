@@ -47,15 +47,14 @@ bool MenuScene::init()
 	this->addChild(this->_pLabel, 1);
 
 	auto callback = std::bind(&MenuScene::menuReloadCallback, this, this);
-
 	MenuItemImage *pCloseItem = MenuItemImage::create(
 		"reload.png",
 		"reload.png",
 		callback);
 
 	Menu* pMenu = Menu::create(pCloseItem, NULL);
-	pMenu->setPosition(Vec2(45, 720));
-	this->addChild(pMenu, 1);
+	pMenu->setPosition(Vec2(0, 0));
+	this->addChild(pMenu, 2);
 
 	// add "HelloWorld" splash screen"
 	Sprite* pSprite = Sprite::create("bg.png");
@@ -226,7 +225,7 @@ void MenuScene::check_controller()
 		}
 
 
-		handle_joystick(0, Vec2(0, 0), pt);
+		handle_joystick(0, Vec2(MAP_WIDTH, 0), pt);
 	}
 	else {
 		_connected_controller = false;
@@ -322,15 +321,21 @@ void MenuScene::check_movement()
 						_score += 100;
 						update_score();
 					}
+					
+					if (_grid[nextId].getType() == SpriteType::EXIT) {
+						_score += 100;
+						update_score();
+					}
 				}
 
 
-
+				//shitcode
 				std::swap(_grid[nextId], _grid[oldId]);
+
 				this->_user = &_grid[nextId];
-				
+			
 				//WALK;
-				if (_grid[oldId].getType() != SpriteType::GHOSTWALL) {
+				if (_grid[oldId].getType() != SpriteType::EXIT) {
 					
 					if (_grid[oldId].getSprite() != nullptr && _grid[oldId].getSprite()->isVisible()) {
 						_grid[oldId].getSprite()->setVisible(false);
@@ -343,6 +348,7 @@ void MenuScene::check_movement()
 				
 				}
 				
+
 
 				_user->setId(nextId);
 				make_move();
@@ -636,7 +642,7 @@ void MenuScene::draw_grid(std::string map)
 	const std::string EMPTY = "EMPTY";
 	const std::string GLASS = "GLASS";
 	const std::string GHOSTWALL = "GHOSTWALL";
-
+	const std::string EXIT = "EXIT";
 
 	////get relative path
 	//std::string path = CCFileUtils::sharedFileUtils()->fullPathForFilename(map.c_str());
@@ -710,7 +716,10 @@ void MenuScene::draw_grid(std::string map)
 								else
 									if (type == GHOSTWALL) {
 										tp = SpriteType::GHOSTWALL;
-									}
+									}else
+				if (type == EXIT) {
+					tp = SpriteType::EXIT;
+				}
 									else
 
 									if (type == GLASS) {

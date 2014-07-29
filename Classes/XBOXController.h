@@ -24,6 +24,7 @@ class CXBOXController
 public:
 	enum Buttons {
 		BUTTON_B,
+		BUTTON_Y,
 		BUTTON_START,
 		BUTTON_BACK,
 		BUTTON_LB,

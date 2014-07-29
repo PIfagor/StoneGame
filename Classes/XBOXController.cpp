@@ -168,6 +168,9 @@ bool CXBOXController::isBtnPressed(Buttons btn)
 	case CXBOXController::BUTTON_B:
 		return (this->GetState().Gamepad.wButtons & XINPUT_GAMEPAD_B);
 		break;
+	case CXBOXController::BUTTON_Y:
+		return (this->GetState().Gamepad.wButtons & XINPUT_GAMEPAD_Y);
+		break;
 	case CXBOXController::BUTTON_START:
 		return (this->GetState().Gamepad.wButtons & XINPUT_GAMEPAD_START);
 		break;

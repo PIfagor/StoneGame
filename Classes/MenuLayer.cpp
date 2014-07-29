@@ -19,7 +19,7 @@ bool MenuLayer::init()
 
 	auto callback = std::bind(&MenuLayer::menuCloseCallback, this, this);
 	MenuItemImage *pCloseItem = MenuItemImage::create(
-		"exit.png",
+		"exitGame.png",
 		"exit_pressed.png",
 		callback);
 
