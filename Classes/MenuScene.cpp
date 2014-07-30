@@ -44,6 +44,8 @@ bool MenuScene::init()
 	this->_pLabel->setPosition(Vec2(origin.x + visibleSize.width / 2 + 400,
 		origin.y + visibleSize.height - this->_pLabel->getContentSize().height));
 
+	
+	
 	this->addChild(this->_pLabel, 1);
 
 	auto callback = std::bind(&MenuScene::menuReloadCallback, this, this);
