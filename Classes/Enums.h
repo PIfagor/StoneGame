@@ -2,8 +2,8 @@
 #define _ENUMS_H_
 
 enum Dir { TOP, BOTTOM, LEFT, RIGHT };
-enum SpriteType { NONE, BORDER, SAND, STONE, CRYSTAL, GLASS, USER, GHOSTWALL ,EXIT };
-
+enum SpriteType { NONE, BORDER, SAND, STONE, CRYSTAL, GLASS, USER, GHOSTWALL ,EXIT , KEY};
+enum NumberWorld {FIRST,SECOND,THIRD,FOURTH,FIFTH};
 
 enum ConfigVals {
 	MAP_WIDTH = 20,

@@ -1,7 +1,10 @@
 ﻿#include "MenuScene.h"
-//#include "SimpleAudioEngine.h"
-#include <cmath>
+#include "Applic.h"
 
+#include "SimpleAudioEngine.h"
+
+#include <cmath>
+#include <sstream>
 
 
 #include "json/document.h"
@@ -12,8 +15,12 @@
 //#include "cocos-ext.h"
 
 
-//using namespace CocosDenshion;
+using namespace CocosDenshion;
 //using namespace rapidjson;
+
+// tiles bollean checkins
+bool haveExit	=	false;
+bool haveKey	=   false;
 
 Scene* MenuScene::createScene()
 {
@@ -25,8 +32,11 @@ Scene* MenuScene::createScene()
 	return scene;
 }
 
-#define PLAY_CRYSTAL SimpleAudioEngine::sharedEngine()->playEffect(CCFileUtils::sharedFileUtils()->fullPathForFilename("pick_crystal.mp3").c_str());
-#define WALK SimpleAudioEngine::sharedEngine()->playEffect(CCFileUtils::sharedFileUtils()->fullPathForFilename("walk.mp3").c_str());
+#define PLAY_CRYSTAL SimpleAudioEngine::getInstance()->playEffect(CCFileUtils::sharedFileUtils()->fullPathForFilename("pick_crystal.mp3").c_str());
+#define WALK SimpleAudioEngine::getInstance()->playEffect(CCFileUtils::sharedFileUtils()->fullPathForFilename("walk.mp3").c_str());
+
+
+
 
 bool MenuScene::init()
 {
@@ -42,22 +52,23 @@ bool MenuScene::init()
 	this->_pLabel = Label::createWithTTF(config, "Score 0");
 
 	this->_pLabel->setPosition(Vec2(origin.x + visibleSize.width / 2 + 400,
-		origin.y + visibleSize.height - this->_pLabel->getContentSize().height));
+		origin.y + this->_pLabel->getContentSize().height));
 
 	
 	
 	this->addChild(this->_pLabel, 1);
+	auto wiew = Director::getInstance()->getOpenGLView()->getDesignResolutionSize();
+
 
 	auto callback = std::bind(&MenuScene::menuReloadCallback, this, this);
-	MenuItemImage *pCloseItem = MenuItemImage::create(
-		"reload.png",
-		"reload.png",
-		callback);
+	MenuItemImage *pCloseItem = MenuItemImage::create("reload.png","reload.png",callback);
+		
+	pCloseItem->setAnchorPoint(Vec2(1, 1));
+	pCloseItem->setPosition(Vec2(wiew.width, wiew.height));
 
 	Menu* pMenu = Menu::create(pCloseItem, NULL);
 	pMenu->setPosition(Vec2(0, 0));
 	this->addChild(pMenu, 2);
-
 	// add "HelloWorld" splash screen"
 	Sprite* pSprite = Sprite::create("bg.png");
 	// position the sprite on the center of the screen
@@ -73,7 +84,7 @@ bool MenuScene::init()
 	// IMPORTANT: enables touch events
 	//Director::getInstance()->getTouchDispatcher()->addStandardDelegate(this, 0);
 
-	_current_map = 0;
+	_current_map = App::get()->getCurrentWorld() + App::get()->getCurrentMap();
 	_grid = NULL;
 
 	load_maps();
@@ -87,8 +98,10 @@ bool MenuScene::init()
 
 	//_map_vector.push_back("map3.json");
 	//_map_vector.push_back("map4.json");
-
-	change_level();
+	
+	std::stringstream ss;
+	ss << "map_" << App::get()->getCurrentWorld() << "_" << App::get()->getCurrentMap()<<".json";
+	change_level(ss.str());
 
 	draw_controls();
 	this->_controls_touch_id = 0;
@@ -110,8 +123,17 @@ bool MenuScene::init()
 	//Director::getInstance()->getTouchDispatcher()->removeDelegate(this);
 	//Director::getInstance()->getTouchDispatcher()->addStandardDelegate(this, 0);
 
+	auto backBtn = MenuItemImage::create("back_midle.png", "back_midle.png", [](Ref*) {
+		App::get()->gotoWorldMap(NULL);
+	});
+	
+	backBtn->setAnchorPoint(Vec2(0, 1));
+	backBtn->setPosition(Vec2(0, wiew.height));
 
-
+	auto menu = Menu::create(backBtn, NULL);
+	menu->setPosition(Point::ZERO);
+	this->addChild(menu, 2);
+	addListeners();
 	return true;
 }
 
@@ -142,7 +164,7 @@ void MenuScene::update(float dt)
 
 void MenuScene::check_level_end()
 {
-	if (this->_crystal_number == 0) {
+	if (this->_crystal_number == 0&&!haveExit) {
 		next_map();
 	}
 }
@@ -311,7 +333,7 @@ void MenuScene::check_movement()
 					if (_grid[nextId].getType() == SpriteType::CRYSTAL) {
 						_score += 50;
 						update_score();
-						//PLAY_CRYSTAL;
+						PLAY_CRYSTAL;
 						--(_crystal_number);
 						//#ifdef _WIN32
 						//						_player->Vibrate(ConfigVals::VIBRATION_POWER, ConfigVals::VIBRATION_POWER);
@@ -323,11 +345,14 @@ void MenuScene::check_movement()
 						_score += 10;
 						update_score();
 					}
-					if (_grid[nextId].getType() == SpriteType::GHOSTWALL) {
-						_score += 100;
-						update_score();
-					}
 					
+					if (_grid[nextId].getType() == SpriteType::EXIT) {
+							haveExit = false;
+					}
+
+					if (_grid[nextId].getType() == SpriteType::KEY) {
+						haveKey = false;
+					}
 					
 				}
 
@@ -337,12 +362,10 @@ void MenuScene::check_movement()
 
 				this->_user = &_grid[nextId];
 
-				if (_grid[oldId].getType() == SpriteType::EXIT) {
-					_score += 100;
-					update_score();
-				}
+				
 				//WALK;
-				if (_grid[oldId].getType() != SpriteType::EXIT) {
+
+				if (_grid[oldId].getType() != SpriteType::GHOSTWALL) {
 					
 					if (_grid[oldId].getSprite() != nullptr && _grid[oldId].getSprite()->isVisible()) {
 						_grid[oldId].getSprite()->setVisible(false);
@@ -466,44 +489,67 @@ void MenuScene::hide_controls()
 	_stick->setVisible(false);
 }
 
-//void MenuScene::ccTouchesBegan(CCSet* pTouches, CCEvent* event)
-//{
-//	CCSetIterator it;
-//	CCTouch* touch;
-//
-//	Size DesResolution = Director::getInstance()->getWinSize();
-//
-//	for (it = pTouches->begin(); it != pTouches->end(); it++) {
-//
-//		touch = (CCTouch*)(*it);
-//		//last_id = touch->getID();
-//		Vec2 pt = touch->getLocation();
-//
-//		if (pt.x < DesResolution.width / 3 && !_joy->isVisible()) {
-//			show_controls(pt);
-//			this->_controls_touch_id = touch->getID();
-//		}
-//
-//	} // end for
-//
-//}
-//
-//void MenuScene::ccTouchesMoved(CCSet* pTouches, CCEvent* event)
-//{
-//
-//	CCSetIterator	it;
-//	CCTouch*		touch;
-//
-//
-//	for (it = pTouches->begin(); it != pTouches->end(); it++) {
-//		touch = (CCTouch*)(*it);
-//		Vec2 pt = touch->getLocation();
-//
-//		handle_joystick(touch->getID(), ccp(_joy->getPositionX(), _joy->getPositionY()), pt);
-//
-//	}
-//
-//}
+
+
+void MenuScene::addListeners()
+{
+	auto listener = cocos2d::EventListenerTouchAllAtOnce::create();
+
+	listener->onTouchesBegan = [&](const std::vector<Touch*>& pTouches, Event* event)
+	{
+		
+		Touch* touch;
+
+		Size DesResolution = Director::getInstance()->getWinSize();
+
+		for (auto it = pTouches.begin(); it != pTouches.end(); it++) {
+
+			touch = (Touch*)(*it);
+			//last_id = touch->getID();
+			Vec2 pt = touch->getLocation();
+
+			if (pt.x < DesResolution.width / 3 && !_joy->isVisible()) {
+				show_controls(pt);
+				this->_controls_touch_id = touch->getID();
+			}
+
+		} // end for
+
+	};
+
+		listener->onTouchesMoved = [&](const std::vector<Touch*>& pTouches, Event* event){
+			Touch*		touch;
+
+
+			for (auto it = pTouches.begin(); it != pTouches.end(); it++) {
+				touch = (Touch*)(*it);
+				Vec2 pt = touch->getLocation();
+
+				handle_joystick(touch->getID(), ccp(_joy->getPositionX(), _joy->getPositionY()), pt);
+
+			}
+		};
+
+		listener->onTouchesEnded = [&](const std::vector<Touch*>& pTouches, Event* event){
+			Touch*		touch;
+
+
+			for (auto it = pTouches.begin(); it != pTouches.end(); it++) {
+				touch = (Touch*)(*it);
+				Vec2 pt = touch->getLocation();
+
+				if (touch->getID() == this->_controls_touch_id) {
+					hide_controls();
+					this->_controls_touch_id = 0;
+				}
+
+			}
+		};
+		Director::getInstance()->getEventDispatcher()->addEventListenerWithFixedPriority(listener, 30);
+
+		_listener = listener;
+}
+
 
 // NOTE: local, not visible outside this .cpp file
 float angleBetweenLinesInRadians(Vec2 line1Start, Vec2 line1End)
@@ -597,25 +643,7 @@ void MenuScene::handle_joystick(int touch_id, const Vec2 & origin, const Vec2 & 
 	}
 }
 
-//void MenuScene::ccTouchesEnded(CCSet* pTouches, CCEvent* event)
-//{
-//
-//	CCSetIterator	it;
-//	CCTouch*		touch;
-//
-//
-//	for (it = pTouches->begin(); it != pTouches->end(); it++) {
-//		touch = (CCTouch*)(*it);
-//		Vec2 pt = touch->getLocation();
-//
-//		if (touch->getID() == this->_controls_touch_id) {
-//			hide_controls();
-//			this->_controls_touch_id = 0;
-//		}
-//
-//	}
-//
-//}
+
 
 void MenuScene::menuCloseCallback(Ref* pSender)
 {
@@ -637,7 +665,8 @@ void MenuScene::menuReloadCallback(Ref* pSender)
 void MenuScene::draw_grid(std::string map)
 {
 	clear_map();
-
+	haveExit = false;
+	haveKey = false;
 	_grid = new MapTile[ConfigVals::MAP_WIDTH * ConfigVals::MAP_HEIGHT];
 
 	const std::string NONE = "NONE";
@@ -650,7 +679,7 @@ void MenuScene::draw_grid(std::string map)
 	const std::string GLASS = "GLASS";
 	const std::string GHOSTWALL = "GHOSTWALL";
 	const std::string EXIT = "EXIT";
-
+	const std::string KEY = "KEY";
 	////get relative path
 	//std::string path = CCFileUtils::sharedFileUtils()->fullPathForFilename(map.c_str());
 
@@ -723,39 +752,47 @@ void MenuScene::draw_grid(std::string map)
 								else
 									if (type == GHOSTWALL) {
 										tp = SpriteType::GHOSTWALL;
-									}else
-				if (type == EXIT) {
-					tp = SpriteType::EXIT;
-				}
-									else
-
-									if (type == GLASS) {
-										tp = SpriteType::GLASS;
 									}
 									else
 
-										if (type == USER) {
-											this->_user = &_grid[absolute_index];
-											tp = SpriteType::USER;
+
+										if (type == GLASS) {
+											tp = SpriteType::GLASS;
 										}
-										else {
-											throw "Type doesn't exist.";
-										}
+										else
+											if (type == EXIT) {
+												haveExit = true;
+												tp = SpriteType::EXIT;
+											}
+											else
+												if (type == KEY) {
+													haveKey = true;
+													tp = SpriteType::KEY;
+												}
+												else
+
+													if (type == USER) {
+														this->_user = &_grid[absolute_index];
+														tp = SpriteType::USER;
+													}
+													else {
+														throw "Type doesn't exist.";
+													}
 
 
-										temp->setAnchorPoint(Vec2(0, 0));
+													temp->setAnchorPoint(Vec2(0, 0));
 
-										float x = j * ConfigVals::TILE_WIDTH;
-										float y = i * ConfigVals::TILE_HEIGHT;
+													float x = j * ConfigVals::TILE_WIDTH;
+													float y = i * ConfigVals::TILE_HEIGHT;
 
-										temp->setPosition(Vec2(x + offset_left, y + offset_bottom));
-										this->addChild(temp, Tags::TILE, Tags::TILE);
+													temp->setPosition(Vec2(x + offset_left, y + offset_bottom));
+													this->addChild(temp, Tags::TILE, Tags::TILE);
 
-										_grid[absolute_index] = MapTile(tp, temp, absolute_index);
+													_grid[absolute_index] = MapTile(tp, temp, absolute_index);
 
-										if (tp == SpriteType::GLASS) {
-											_grid[absolute_index].setBlocked(true);
-										}
+													if (tp == SpriteType::GLASS) {
+														_grid[absolute_index].setBlocked(true);
+													}
 
 			}
 			else {
@@ -813,12 +850,20 @@ void MenuScene::load_maps()
 
 }
 
+void MenuScene::load_map(std::string s){
+
+	assert(std::find(_map_vector.begin(), _map_vector.end(), s) != _map_vector.end());
+	_map = s;
+
+	menuReloadCallback(NULL);
+		
+}
 
 void MenuScene::next_map()
 {
 	if (_current_map + 1 < _map_vector.size()) {
 		++(_current_map);
-		change_level();
+		change_level("");
 	}
 }
 
@@ -826,18 +871,24 @@ void MenuScene::prev_map()
 {
 	if (_current_map - 1 >= 0) {
 		--(_current_map);
-		change_level();
+		change_level("");
 	}
 }
 
-void MenuScene::change_level()
+void MenuScene::change_level(std::string carMap)
 {
+	if (carMap.empty()){
+		if (_current_map >= 0 && _current_map < _map_vector.size()) {
+			_map = _map_vector.at(_current_map);
 
-	if (_current_map >= 0 && _current_map < _map_vector.size()) {
-		_map = _map_vector.at(_current_map);
-
+			menuReloadCallback(NULL);
+		}
+	}
+	else {
+		_map = carMap;
 		menuReloadCallback(NULL);
 	}
+	
 
 }
 
@@ -846,9 +897,14 @@ bool MenuScene::isOnBounds(int index)
 	if (_grid[index].getType() == SpriteType::BORDER) {
 		return true;
 	}
+
 	if (_grid[index].getType() == SpriteType::EXIT){
-		if (this->_crystal_number == 1) {
-			return false;
+		
+		if (this->_crystal_number == 0) {
+			if (haveKey == false) {
+				return false;
+			}
+			else return true;
 		}
 		return true;
 	}
@@ -861,4 +917,5 @@ MenuScene::~MenuScene()
 #ifdef _WIN32
 	delete _player;
 #endif
+	Director::getInstance()->getEventDispatcher()->removeEventListener(_listener);
 }

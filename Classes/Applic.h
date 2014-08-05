@@ -1,0 +1,86 @@
+#ifndef _APPLIC_H_
+#define _APPLIC_H_
+
+//#include "Macro.h"
+#include "cocos2d.h"
+//#include "Map.h"
+//#include "Location.h"
+#include "Constants.h"
+#include "json/document.h"	
+
+class User;
+
+class App {
+public:
+	// data that needs to be saved is located here
+	struct userData {
+		std::vector<std::vector<bool>> _complitedLvls;
+		userData();
+
+		std::string toStr() const;
+	};
+
+
+	virtual ~App();
+
+	static App * get() {
+		static App app;
+		return &app;
+	}
+
+	void showSplash();
+	void gotoMenu(cocos2d::Ref*);
+	void startGame(cocos2d::Ref*);
+	void startLevel(cocos2d::Ref*);
+	void resumeGame(cocos2d::Ref*);
+	void gotoWorldMap(cocos2d::Ref*);
+	void gotoLevelMap(cocos2d::Ref*);
+	void gotoWorldOne(cocos2d::Ref*);
+	void gotoWorldTwo(cocos2d::Ref*);
+	void gotoWorldThree(cocos2d::Ref*);
+	void loadUserData();
+	void saveUserData();
+
+	void loadGameData();
+
+	int getCurrentWorld() { return _currentWorld;};
+	int getCurrentMap() { return _currentMap; };
+
+	void setCurrentWorld(int data) { _currentWorld = data; };
+	void setCurrentMap(int data) { _currentMap = data; };
+ 		
+	const userData & getConfig() const { return _userData; };
+	const std::shared_ptr<User> & getUser() const { return _user; };
+	//void setCurrentMap(rpg::Map* map) { _currentMap = map; };
+	//rpg::Map * getCurrentMap() const { return _currentMap; };
+
+	void setCanTouch(const bool & state) { _canTouch = state; };
+	const bool & canTouch() { return _canTouch; };
+	void setResolution(const Resolution& res) { _resolution = res; };
+
+	//Location & getCurrentLocation();
+	const bool & reloadOnTheFly() const { return _reloadOnTheFly; };
+	void setReloadOnTheFly(const bool & state) { _reloadOnTheFly = state; };
+
+private:
+	App();
+	DISALLOW_COPY_AND_ASSIGN(App);
+
+	std::string getUserData();
+	void loadSearthPaths(const rapidjson::Document &);
+	//void loadLocations(const rapidjson::Document &);
+
+	////////////////////////////////////////////////
+	// FIELDS
+	userData						_userData;
+	std::shared_ptr<User>			_user;
+	//rpg::Map*						_currentMap;
+	bool                            _canTouch;
+	Resolution						_resolution;
+	//std::vector<Location>			_locations;
+	bool							_reloadOnTheFly;
+	int								_currentWorld = 0;
+	int								_currentMap = 0;
+};
+
+#endif

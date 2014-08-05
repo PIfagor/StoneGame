@@ -1,6 +1,6 @@
 #include "AppDelegate.h"
 #include "MenuScene.h"
-
+#include "Applic.h"
 USING_NS_CC;
 
 AppDelegate::AppDelegate() {
@@ -16,7 +16,7 @@ bool AppDelegate::applicationDidFinishLaunching() {
     auto director = Director::getInstance();
     auto glview = director->getOpenGLView();
     if(!glview) {
-        glview = GLView::create("My Game");
+        glview = GLView::create("StonesGame");
         director->setOpenGLView(glview);
     }
 	glview->setDesignResolutionSize(1024, 768, ResolutionPolicy::SHOW_ALL);
@@ -28,10 +28,10 @@ bool AppDelegate::applicationDidFinishLaunching() {
     director->setAnimationInterval(1.0 / 60);
 
     // create a scene. it's an autorelease object
-	auto scene = MenuScene::createScene();
-
+	//auto scene = MenuScene::createScene();
+	App::get()->showSplash();
     // run
-    director->runWithScene(scene);
+    //director->runWithScene(scene);
 
     return true;
 }

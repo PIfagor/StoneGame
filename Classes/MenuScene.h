@@ -24,7 +24,7 @@ public:
 
 	void menuCloseCallback(Ref*);
 	void menuReloadCallback(Ref*);
-
+	void load_map(std::string s);
 	//THE OVERRIDES
 	//virtual void ccTouchesBegan(CCSet*, CCEvent*);
 	//virtual void ccTouchesMoved(CCSet*, CCEvent*);
@@ -58,10 +58,10 @@ private:
 
 	void next_map();
 	void prev_map();
-	void change_level();
+	void change_level(std::string);
 
 	void load_maps();
-
+	void addListeners();
 
 	struct move_controller {
 		Dir		_direction;
@@ -99,6 +99,8 @@ private:
 	size_t							_current_map;
 
 	int							_last_glass_id;
+
+	EventListener*				_listener;
 
 #ifdef _WIN32
 	CXBOXController *	_player;
