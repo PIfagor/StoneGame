@@ -28,6 +28,16 @@ bool MainMenu::init()
 		return false;
 	}
 
+#ifdef _WIN32
+	//install controler buttons
+	App::get()->_player->clear_controller();
+	App::get()->_player->setButtomFunction([]{ Director::getInstance()->end(); }, CXBOXController::BUTTON_BACK);
+	App::get()->_player->setButtomFunction([this]{ App::get()->gotoWorldMap(NULL); },
+		CXBOXController::BUTTON_START);
+	App::get()->_player->setButtomFunction([this]{App::get()->gotoWorldMap(NULL); },
+		CXBOXController::BUTTON_A);
+	
+#endif
 	/*auto sprite = Sprite3D::create("pyr.obj", "texture.tga");
 	sprite->setScale(0.3);
 	sprite->setRotation3D(Vec3(0, 230, 0));
@@ -61,7 +71,16 @@ bool MainMenu::init()
 	menu->setPosition(Point::ZERO);
 	this->addChild(menu,1);
 	
-
+	this->schedule(schedule_selector(MainMenu::update));
 	return true;
 }
 
+void MainMenu::update(float dt)
+{
+	// if is running
+	//CCLOG("check_1up");
+#ifdef _WIN32
+	App::get()->_player->check_controller();
+#endif	
+
+}

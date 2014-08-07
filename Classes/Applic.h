@@ -7,7 +7,9 @@
 //#include "Location.h"
 #include "Constants.h"
 #include "json/document.h"	
-
+#ifdef _WIN32
+#include "XBOXController.h";
+#endif
 class User;
 
 class App {
@@ -49,7 +51,13 @@ public:
 	void setCurrentWorld(int data) { _currentWorld = data; };
 	void setCurrentMap(int data) { _currentMap = data; };
  		
+	void incrementCurrnetMap() { _currentMap++;};
+	void decrementCurrnetMap() { _currentMap--;};
+	void incrementCurrnetWorld() { _currentWorld++; };
+	void decrementCurrnetWorld() { _currentWorld--; };
+
 	const userData & getConfig() const { return _userData; };
+	const void  setConfig(bool isCompite) { _userData._complitedLvls[_currentWorld][_currentMap] = isCompite; };
 	const std::shared_ptr<User> & getUser() const { return _user; };
 	//void setCurrentMap(rpg::Map* map) { _currentMap = map; };
 	//rpg::Map * getCurrentMap() const { return _currentMap; };
@@ -61,6 +69,11 @@ public:
 	//Location & getCurrentLocation();
 	const bool & reloadOnTheFly() const { return _reloadOnTheFly; };
 	void setReloadOnTheFly(const bool & state) { _reloadOnTheFly = state; };
+
+
+#ifdef _WIN32
+	CXBOXController *	_player;
+#endif
 
 private:
 	App();
@@ -81,6 +94,9 @@ private:
 	bool							_reloadOnTheFly;
 	int								_currentWorld = 0;
 	int								_currentMap = 0;
+
+
+
 };
 
 #endif

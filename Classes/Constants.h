@@ -35,7 +35,7 @@ const int TILE_DELTA_Y = 8;
 
 
 const int COUNT_WORLDS = 3;
-const int COUNT_LVLS_ON_1_WORLD = 20;
+const int COUNT_LVLS_ON_1_WORLD = 10;
 
 enum Resolution {
 	REGULAR_RES,

@@ -63,6 +63,7 @@ private:
 	void load_maps();
 	void addListeners();
 
+	
 	struct move_controller {
 		Dir		_direction;
 		bool	_is_moving;
@@ -101,7 +102,8 @@ private:
 	int							_last_glass_id;
 
 	EventListener*				_listener;
-
+	Vec2						_pointerJoistick;
+	bool						_can_make_move=false;
 #ifdef _WIN32
 	CXBOXController *	_player;
 	bool				_connected_controller;

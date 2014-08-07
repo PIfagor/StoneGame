@@ -12,7 +12,7 @@ CXBOXController::CXBOXController(int playerNumber)
 	{
 		_is_btn_pressed[i] = false;
 	}
-
+	buttons = std::vector<std::function<void()>>(BUTTON_NUM);
 }
 
 XINPUT_STATE CXBOXController::GetState()
@@ -151,17 +151,17 @@ void CXBOXController::rightThumbTest()
 
 /////////////////////////////////////////////////////////////////////
 
-bool CXBOXController::getBtnState(Buttons btn)
+bool CXBOXController::getBtnState(int btn)
 {
 	return _is_btn_pressed[btn];
 }
 
-void CXBOXController::setBtnState(Buttons btn, bool state)
+void CXBOXController::setBtnState(int btn, bool state)
 {
 	_is_btn_pressed[btn] = state;
 }
 
-bool CXBOXController::isBtnPressed(Buttons btn)
+bool CXBOXController::isBtnPressed(int btn)
 {
 	switch (btn)
 	{
@@ -170,6 +170,12 @@ bool CXBOXController::isBtnPressed(Buttons btn)
 		break;
 	case CXBOXController::BUTTON_Y:
 		return (this->GetState().Gamepad.wButtons & XINPUT_GAMEPAD_Y);
+		break;
+	case CXBOXController::BUTTON_X:
+		return (this->GetState().Gamepad.wButtons & XINPUT_GAMEPAD_X);
+		break;
+	case CXBOXController::BUTTON_A:
+		return (this->GetState().Gamepad.wButtons & XINPUT_GAMEPAD_A);
 		break;
 	case CXBOXController::BUTTON_START:
 		return (this->GetState().Gamepad.wButtons & XINPUT_GAMEPAD_START);
@@ -189,13 +195,25 @@ bool CXBOXController::isBtnPressed(Buttons btn)
 	case CXBOXController::BUTTON_RB:
 		return (GetState().Gamepad.wButtons & XINPUT_GAMEPAD_RIGHT_SHOULDER);
 		break;
+	case CXBOXController::BUTTON_RIGHT:
+		return (this->GetState().Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_RIGHT);
+		break;
+	case CXBOXController::BUTTON_LEFT:
+		return (this->GetState().Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_LEFT);
+		break;
+	case CXBOXController::BUTTON_TOP:
+		return (this->GetState().Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_UP);
+		break;
+	case CXBOXController::BUTTON_BOTTOM:
+		return (this->GetState().Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_DOWN);
+		break;
 	default:
 		return false;
 		break;
 	}
 }
 
-bool CXBOXController::hasBtnBeenPressed(Buttons btn)
+bool CXBOXController::hasBtnBeenPressed(int btn)
 {
 	if (isBtnPressed(btn))
 	{
@@ -207,6 +225,34 @@ bool CXBOXController::hasBtnBeenPressed(Buttons btn)
 			return true;
 		}
 	}
-
 	return false;
+}
+
+
+void CXBOXController::check_controller()
+{
+
+	if (this->IsConnected()) {
+		Vec2 pt = this->leftThumbTest();
+		for (auto i = 0; i < BUTTON_NUM; ++i)
+		{
+			if (buttons[i]!=nullptr)
+			{
+				if (this->hasBtnBeenPressed(i))		{ buttons[i](); }
+			}
+			
+		}
+
+		}
+	else {
+		
+	}
+}
+
+void CXBOXController::clear_controller()
+{
+	for (auto  it = buttons.begin(); it !=buttons.end(); ++it)
+	{
+		*it = nullptr;
+	}
 }

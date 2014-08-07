@@ -12,19 +12,30 @@ public:
 	static cocos2d::Scene* createScene(bool inGame = false);
 
 	virtual bool init() override;
-	void setIngameMode();
+	void update(float);
 
 
 	CREATE_FUNC(WorldMap);
 
+	
 private:
 	WorldMap();
 	DISALLOW_COPY_AND_ASSIGN(WorldMap);
 
 	cocos2d::EventListener*	_listener;
 
-
-	bool	_inGameMode;
+	void openActiveWorld(int number);
+	
+	//int		_currentWorld = 0;
+	int deltaX = 260;
+	int deltaY = 175;
+#ifdef _WIN32
+		cocos2d::Sprite*		_arrow;
+		void		check_controller();
+#endif
 };
 
 #endif 
+
+
+

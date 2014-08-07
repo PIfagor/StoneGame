@@ -5,13 +5,13 @@
 
 USING_NS_CC;
 
-WorldMap::WorldMap() :
-_inGameMode(false)
+WorldMap::WorldMap()
 {
 }
 
 WorldMap::~WorldMap()
 {
+
 	if (_listener) {
 		Director::getInstance()->getEventDispatcher()->removeEventListener(_listener);
 	}
@@ -23,29 +23,10 @@ Scene* WorldMap::createScene(bool inGame)
 	auto layer = WorldMap::create();
 	scene->addChild(layer);
 
-	if (inGame) {
-		layer->setIngameMode();
-	}
 
 	return scene;
 }
 
-void WorldMap::setIngameMode() {
-	_inGameMode = true;
-
-	auto backBtn = MenuItemImage::create("back.png", "back.png", [](Ref*) {
-		auto director = Director::getInstance();
-		director->popScene();
-		CCLOG("POPPING world map");
-	});
-
-	Size visibleSize = Director::getInstance()->getVisibleSize();
-	backBtn->setPosition(Vec2(visibleSize.width / 2, 140));
-
-	auto menu = Menu::create(backBtn, NULL);
-	menu->setPosition(Point::ZERO);
-	this->addChild(menu, 1);
-};
 
 bool WorldMap::init()
 {
@@ -54,6 +35,31 @@ bool WorldMap::init()
 	{
 		return false;
 	}
+#ifdef _WIN32
+	//install controler buttons
+	App::get()->_player->clear_controller();
+	App::get()->_player->setButtomFunction([]{ App::get()->gotoMenu(NULL); }, CXBOXController::BUTTON_BACK);
+	App::get()->_player->setButtomFunction([]{ App::get()->gotoMenu(NULL); }, CXBOXController::BUTTON_B);
+	App::get()->_player->setButtomFunction([this]
+	{ if (App::get()->getCurrentWorld() <= 0)
+	App::get()->setCurrentWorld(COUNT_WORLDS - 1);
+	else
+		App::get()->decrementCurrnetWorld();
+	_arrow->setPosition(Vec2(215 + deltaX*App::get()->getCurrentWorld(), 680 - deltaY*App::get()->getCurrentWorld())); },
+		CXBOXController::BUTTON_LEFT);
+	App::get()->_player->setButtomFunction([this]
+	{if (App::get()->getCurrentWorld() >= COUNT_WORLDS - 1)
+	App::get()->setCurrentWorld(0);
+	else
+		App::get()->incrementCurrnetWorld();
+	_arrow->setPosition(Vec2(215 + deltaX*App::get()->getCurrentWorld(), 680 - deltaY*App::get()->getCurrentWorld())); },
+		CXBOXController::BUTTON_RIGHT);
+	App::get()->_player->setButtomFunction([this]{ openActiveWorld(App::get()->getCurrentWorld()); },
+		CXBOXController::BUTTON_START);
+	App::get()->_player->setButtomFunction([this]{ openActiveWorld(App::get()->getCurrentWorld()); },
+		CXBOXController::BUTTON_A);
+#endif
+
 
 	Size visibleSize = Director::getInstance()->getVisibleSize();
 	Vec2 origin = Director::getInstance()->getVisibleOrigin();
@@ -63,19 +69,18 @@ bool WorldMap::init()
 	sprite->setPosition(Vec2(visibleSize.width / 2 + origin.x, visibleSize.height / 2 + origin.y));
 	addChild(sprite, 0);
 
-	auto deltaX = 260;
-	auto deltaY = 175;
+	
 
 	auto city1 = Sprite::create("potlava.png");
-	city1->setPosition(Vec2(215 + deltaX*0, 560 - deltaY*0));
+	city1->setPosition(Vec2(215 + deltaX * 0, 560 - deltaY * 0));
 	addChild(city1, 1);
-	
+
 	auto city2 = Sprite::create("globuno.png");
-	city2->setPosition(Vec2(215 + deltaX*1, 560 - deltaY*1));
+	city2->setPosition(Vec2(215 + deltaX * 1, 560 - deltaY * 1));
 	addChild(city2, 1);
 
 	auto city3 = Sprite::create("lusenko.png");
-	city3->setPosition(Vec2(215 + deltaX*2, 560 - deltaY*2));
+	city3->setPosition(Vec2(215 + deltaX * 2, 560 - deltaY * 2));
 	addChild(city3, 1);
 
 	auto listener = cocos2d::EventListenerTouchOneByOne::create();
@@ -87,35 +92,73 @@ bool WorldMap::init()
 		cocos2d::Vec2 p = touch->getLocation();
 		if (city1->getBoundingBox().containsPoint(p) && App::get()->canTouch())
 		{
-			App::get()->gotoWorldOne(NULL);
+			//App::get()->gotoWorldOne(NULL);
+			openActiveWorld(0);
 			return true;
 		}
 		if (city2->getBoundingBox().containsPoint(p) && App::get()->canTouch())
 		{
-			App::get()->gotoWorldTwo(NULL);
+
+			//App::get()->gotoWorldTwo(NULL);
+			openActiveWorld(1);
 			return true;
 		}
 		if (city3->getBoundingBox().containsPoint(p) && App::get()->canTouch())
 		{
-			App::get()->gotoWorldThree(NULL);
+			//App::get()->gotoWorldThree(NULL);
+			openActiveWorld(2);
 			return true;
 		}
 		return false;
 	};
 
+
+	this->schedule(schedule_selector(WorldMap::update));
+
 	Director::getInstance()->getEventDispatcher()->addEventListenerWithFixedPriority(listener, 30);
 
-
-	auto arrow = Sprite::create("down_arrow.png");
-	arrow->setPosition(Vec2(215, 680));
-	addChild(arrow, 1);
-
-
+#ifdef _WIN32
+	 _arrow = Sprite::create("down_arrow.png");
+	 _arrow->setPosition(Vec2(215 + deltaX*App::get()->getCurrentWorld(), 680 - deltaY*App::get()->getCurrentWorld()));
+	 addChild(_arrow, 1);
 	// Create the actions
 	auto moveDown = MoveBy::create(.7, Point(0, -15));
 	auto moveUp = MoveBy::create(.7, Point(0, 15));
-
-	arrow->runAction(RepeatForever::create(Sequence::create(moveDown, moveUp, NULL)));
-
+	_arrow->runAction(RepeatForever::create(Sequence::create(moveDown, moveUp, NULL)));
+#endif
 	return true;
 }
+
+void WorldMap::openActiveWorld(int number)
+{
+	switch (number)
+	{
+	case 0:
+		App::get()->gotoWorldOne(NULL);
+		break;
+	case 1:
+		App::get()->gotoWorldTwo(NULL);
+		break;
+	case 2:
+		App::get()->gotoWorldThree(NULL);
+		break;
+	default:
+		CCLOG("This world is not exitst");
+		break;
+	}
+	return;
+};
+
+
+void WorldMap::update(float dt)
+{
+	// if is running
+	//CCLOG("check_1up");
+#ifdef _WIN32
+	App::get()->_player->check_controller();
+#endif	
+	
+}
+
+
+

@@ -18,6 +18,9 @@ USING_NS_CC;
 #define XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE 8689
 #define XINPUT_GAMEPAD_TRIGGER_THRESHOLD    30
 
+#define GEN(type,var) \
+	const type & get##var() const { return var; }; \
+	void set##var(const type & val) { var = val; }; 
 
 class CXBOXController
 {
@@ -25,10 +28,19 @@ public:
 	enum Buttons {
 		BUTTON_B,
 		BUTTON_Y,
+		BUTTON_A,
+		BUTTON_X,
+
 		BUTTON_START,
 		BUTTON_BACK,
+
 		BUTTON_LB,
 		BUTTON_RB,
+
+		BUTTON_RIGHT,
+		BUTTON_LEFT,
+		BUTTON_TOP,
+		BUTTON_BOTTOM,
 
 		TRIGGER_LEFT,
 		TRIGGER_RIGHT,
@@ -36,6 +48,9 @@ public:
 		// NEVER TOUCH THIS ONE
 		BUTTON_NUM
 	};
+
+	std::vector<std::function<void()>> buttons;
+
 
 	CXBOXController(int);
 
@@ -52,19 +67,31 @@ public:
 	void rightThumbTest();
 
 	//////////////////////////////////////////////////////////
-	bool getBtnState(Buttons);
-	void setBtnState(Buttons, bool);
-	bool isBtnPressed(Buttons);
-	bool hasBtnBeenPressed(Buttons);
+	bool getBtnState(int);
+	void setBtnState(int, bool);
+	bool isBtnPressed(int);
+	bool hasBtnBeenPressed(int);
 
+	void clear_controller();
+	void check_controller();
 
+	void setButtomFunction(std::function<void()> func, Buttons btn) { buttons[btn] = func; };
+
+	
 private:
 
 	XINPUT_STATE	_controllerState;
 	int				_controllerNum;
 
 	int				_is_btn_pressed[BUTTON_NUM];
+
+	
+
+
+	
+
 };
+
 
 
 

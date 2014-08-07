@@ -29,6 +29,7 @@ bool AppDelegate::applicationDidFinishLaunching() {
 
     // create a scene. it's an autorelease object
 	//auto scene = MenuScene::createScene();
+    FileUtils::getInstance()->addSearchPath("fonts");
 	App::get()->showSplash();
     // run
     //director->runWithScene(scene);

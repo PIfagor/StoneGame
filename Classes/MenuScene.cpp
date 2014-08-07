@@ -48,7 +48,7 @@ bool MenuScene::init()
 	Size visibleSize = Director::getInstance()->getVisibleSize();
 	Vec2 origin = Director::getInstance()->getVisibleOrigin();
 
-	TTFConfig config("fonts/arial.ttf", 30);
+	TTFConfig config("arial.ttf", 30);
 	this->_pLabel = Label::createWithTTF(config, "Score 0");
 
 	this->_pLabel->setPosition(Vec2(origin.x + visibleSize.width / 2 + 400,
@@ -96,8 +96,6 @@ bool MenuScene::init()
 	//////////////////////////////////////////////////////////////
 
 
-	//_map_vector.push_back("map3.json");
-	//_map_vector.push_back("map4.json");
 	
 	std::stringstream ss;
 	ss << "map_" << App::get()->getCurrentWorld() << "_" << App::get()->getCurrentMap()<<".json";
@@ -146,14 +144,14 @@ void MenuScene::update(float dt)
 #endif
 	if (this->_is_running) {
 		if (
-#ifdef _WIN32 
-			(
+#ifdef _WIN32
+            (
 #endif
-			this->_joy->isVisible()
+             _can_make_move
 #ifdef _WIN32
 			|| _connected_controller)
 #endif
-			&& this->_mv._can_move) {
+			&&this->_mv._can_move) {
 			check_movement();
 
 			check_level_end();
@@ -165,6 +163,8 @@ void MenuScene::update(float dt)
 void MenuScene::check_level_end()
 {
 	if (this->_crystal_number == 0&&!haveExit) {
+		App::get()->setConfig(true);
+		App::get()->saveUserData();
 		next_map();
 	}
 }
@@ -233,7 +233,7 @@ void MenuScene::check_controller()
 		}
 
 		if (_player->hasBtnBeenPressed(CXBOXController::BUTTON_B)) {
-			menuReloadCallback(NULL);
+			App::get()->gotoWorldMap(NULL);
 		}
 
 		if (_player->hasBtnBeenPressed(CXBOXController::BUTTON_Y)) {
@@ -466,12 +466,12 @@ void MenuScene::object_has_fallen(float dt)
 
 void MenuScene::draw_controls()
 {
-	_joy = Sprite::create("joystick_back.png");
+	/*_joy = Sprite::create("joystick_back.png");
 	_stick = Sprite::create("joystick.png");
 	this->addChild(_joy, 1);
 	this->addChild(_stick, 1);
 
-	hide_controls();
+	hide_controls();*/
 }
 
 void MenuScene::show_controls(const Vec2 & pt)
@@ -507,12 +507,9 @@ void MenuScene::addListeners()
 			touch = (Touch*)(*it);
 			//last_id = touch->getID();
 			Vec2 pt = touch->getLocation();
-
-			if (pt.x < DesResolution.width / 3 && !_joy->isVisible()) {
-				show_controls(pt);
-				this->_controls_touch_id = touch->getID();
-			}
-
+			_pointerJoistick=pt;
+			
+			this->_controls_touch_id = touch->getID();
 		} // end for
 
 	};
@@ -520,12 +517,12 @@ void MenuScene::addListeners()
 		listener->onTouchesMoved = [&](const std::vector<Touch*>& pTouches, Event* event){
 			Touch*		touch;
 
-
+			
 			for (auto it = pTouches.begin(); it != pTouches.end(); it++) {
 				touch = (Touch*)(*it);
 				Vec2 pt = touch->getLocation();
 
-				handle_joystick(touch->getID(), ccp(_joy->getPositionX(), _joy->getPositionY()), pt);
+				handle_joystick(touch->getID(), _pointerJoistick, pt);
 
 			}
 		};
@@ -539,7 +536,9 @@ void MenuScene::addListeners()
 				Vec2 pt = touch->getLocation();
 
 				if (touch->getID() == this->_controls_touch_id) {
-					hide_controls();
+					//hide_controls();
+					//_pointerJoistick =  Vec2(0, 0);
+					_can_make_move = false;
 					this->_controls_touch_id = 0;
 				}
 
@@ -586,14 +585,14 @@ void MenuScene::handle_joystick(int touch_id, const Vec2 & origin, const Vec2 & 
 		float delta_x = touch_x - back_x;
 		float delta_y = touch_y - back_y;
 
-		float radius = _joy->getContentSize().width / 2 - 15;
+		//float radius = _joy->getContentSize().width / 2 - 15;
 		float delta = sqrt(pow((touch_x - back_x), 2) + pow(touch_y - back_y, 2));
 
 		/*std::stringstream ss;
 		ss <<"origin: (" << back_x << ", " << back_y << "), touch: (" << touch_x << ", y:" << touch_y << "), delta: " << delta;
 		CCLOG(ss.str().c_str());*/
 
-		if (delta <= radius) {
+		/*if (delta <= radius) {
 			this->_stick->setPosition(touch_pt);
 
 		}
@@ -604,8 +603,9 @@ void MenuScene::handle_joystick(int touch_id, const Vec2 & origin, const Vec2 & 
 
 			this->_stick->setPosition(Vec2(new_x, new_y));
 		}
-
-		if (delta > 25) {
+*/
+		if (delta > 50) {
+			_can_make_move = true;
 			this->_mv._can_move = true;
 			// set_direction
 			float alpha = radians_to_degrees(angleBetweenLinesInRadians(origin, touch_pt));

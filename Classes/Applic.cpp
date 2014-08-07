@@ -23,25 +23,30 @@
 USING_NS_CC;
 
 App::App() :
-//_user(new User()),
-//_currentMap(NULL),
 _canTouch(true),
 _resolution(Resolution::REGULAR_RES),
+#ifdef _WIN32
+ _player(new CXBOXController(1)),
+#endif
 _reloadOnTheFly(false)
+
 {
 	CCLOG("App constructor");
 
 	//for debug
 	setReloadOnTheFly(true);
 
-	//_user->setPosition(Vec2(3, 0));
 
 	loadUserData();
+
+
+
 }
 
 App::~App()
 {
 	CCLOG("App destructor");
+
 }
 
 void App::showSplash()
@@ -94,24 +99,8 @@ void App::gotoWorldThree(Ref* node)
 
 	CCLOG("REPLACING with World  Three");
 }
-void App::gotoLevelMap(Ref* node)
-{
-	auto director = Director::getInstance();
-	auto lvlScene = LevelMap::createScene();
-	director->replaceScene(lvlScene);
-
-	CCLOG("REPLACING with Level  map");
-}
 
 
-//void App::startGame(Ref* pSender)
-//{
-//	auto director = Director::getInstance();
-//	auto gameScene = MainGame::createScene();
-//	director->replaceScene(gameScene);
-//
-//	CCLOG("REPLACING with Main game");
-//}
 void App::startLevel(Ref* pSender)
 {
 	
@@ -138,7 +127,7 @@ App::userData::userData()
 		_complitedLvls.push_back(std::vector<bool>());
 		for (size_t j = 0; j < COUNT_LVLS_ON_1_WORLD; j++)
 		{
-			_complitedLvls[i].push_back(1);
+			_complitedLvls[i].push_back(0);
 		}
 
 	}

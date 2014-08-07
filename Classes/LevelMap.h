@@ -3,27 +3,27 @@
 
 #include "cocos2d.h"
 
-class LevelMap : public cocos2d::LayerColor
+class LevelMap 
 {
 public:
 	virtual ~LevelMap();
 
-	static cocos2d::Scene* createScene(bool inGame = false);
-
-	virtual bool init() override;
-	void setIngameMode();
+	
 
 
-	CREATE_FUNC(LevelMap);
+	static LevelMap * get() {
+		static LevelMap lvlMap;
+		return &lvlMap;
+	}
 
+#ifdef _WIN32
+	//void installControlerButtonsOnEachWorld(Sprite& _arrow, int _deltaX, int _deltaY);
+#endif
 private:
 	LevelMap();
 	DISALLOW_COPY_AND_ASSIGN(LevelMap);
 
-	cocos2d::EventListener*	_listener;
-
-
-	bool	_inGameMode;
+	
 };
 
 #endif 

@@ -36,6 +36,32 @@ bool WorldTwo::init()
 		return false;
 	}
 
+#ifdef _WIN32
+	//install controler buttons
+	App::get()->_player->clear_controller();
+	App::get()->_player->setButtomFunction([]{ Director::getInstance()->end(); }, CXBOXController::BUTTON_BACK);
+	App::get()->_player->setButtomFunction([this]
+	{ if (App::get()->getCurrentMap() <= 0)
+	App::get()->setCurrentMap(COUNT_LVLS_ON_1_WORLD - 1);
+	else
+		App::get()->decrementCurrnetMap();
+	_arrow->setPosition(Vec2(215 + _deltaX * (App::get()->getCurrentMap() % 5), 680 - _deltaY * (App::get()->getCurrentMap() / 5))); },
+		CXBOXController::BUTTON_LEFT);
+	App::get()->_player->setButtomFunction([this]
+	{if (App::get()->getCurrentMap() >= COUNT_LVLS_ON_1_WORLD - 1)
+	App::get()->setCurrentMap(0);
+	else
+		App::get()->incrementCurrnetMap();
+	_arrow->setPosition(Vec2(215 + _deltaX * (App::get()->getCurrentMap() % 5), 680 - _deltaY * (App::get()->getCurrentMap() / 5)));
+	},
+		CXBOXController::BUTTON_RIGHT);
+	App::get()->_player->setButtomFunction([this]{ App::get()->startLevel(NULL); },
+		CXBOXController::BUTTON_START);
+	App::get()->_player->setButtomFunction([this]{ App::get()->startLevel(NULL); },
+		CXBOXController::BUTTON_A);
+	App::get()->_player->setButtomFunction([this]{ App::get()->gotoWorldMap(NULL); },
+		CXBOXController::BUTTON_B);
+#endif
 
 	auto backBtn = MenuItemImage::create("back.png", "back.png", [](Ref*) {
 		App::get()->gotoWorldMap(NULL);
@@ -60,12 +86,17 @@ bool WorldTwo::init()
 	//auto city1 = Sprite::create("leaf.png");
 
 
-
 	for (auto i = 0; i < COUNT_LVLS_ON_1_WORLD; i++)
 	{
-		auto temp = Sprite::create("leaf.png");
+		Sprite* temp;
+		if (App::get()->getConfig()._complitedLvls[1][i] == false)
+			temp = Sprite::create("leaf_black.png");
+		else
+			temp = Sprite::create("leaf.png");
+
 		_levels.push_back(temp);
 	}
+
 
 	for (auto i = 0; i < COUNT_LVLS_ON_1_WORLD; i++)
 	{
@@ -115,16 +146,25 @@ bool WorldTwo::init()
 	Director::getInstance()->getEventDispatcher()->addEventListenerWithFixedPriority(listener, 30);
 
 
-	auto arrow = Sprite::create("down_arrow.png");
-	arrow->setPosition(Vec2(215, 680));
-	addChild(arrow, 1);
-
-
+#ifdef _WIN32
+	_arrow = Sprite::create("down_arrow.png");
+	_arrow->setPosition(Vec2(215 + _deltaX * (App::get()->getCurrentMap() % 5), 680 - _deltaY * (App::get()->getCurrentMap() / 5)));
+	addChild(_arrow, 1);
 	// Create the actions
 	auto moveDown = MoveBy::create(.7, Point(0, -15));
 	auto moveUp = MoveBy::create(.7, Point(0, 15));
-
-	arrow->runAction(RepeatForever::create(Sequence::create(moveDown, moveUp, NULL)));
-
+	_arrow->runAction(RepeatForever::create(Sequence::create(moveDown, moveUp, NULL)));
+#endif
+	this->schedule(schedule_selector(WorldTwo::update));
 	return true;
+}
+
+void WorldTwo::update(float dt)
+{
+	// if is running
+	//CCLOG("check_1up");
+#ifdef _WIN32
+	App::get()->_player->check_controller();
+#endif	
+
 }
