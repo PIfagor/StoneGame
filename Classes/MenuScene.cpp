@@ -48,7 +48,7 @@ bool MenuScene::init()
 	Size visibleSize = Director::getInstance()->getVisibleSize();
 	Vec2 origin = Director::getInstance()->getVisibleOrigin();
 
-	TTFConfig config("arial.ttf", 30);
+	TTFConfig config("arial.ttf", 30);//fonts/
 	this->_pLabel = Label::createWithTTF(config, "Score 0");
 
 	this->_pLabel->setPosition(Vec2(origin.x + visibleSize.width / 2 + 400,
@@ -89,10 +89,8 @@ bool MenuScene::init()
 
 	load_maps();
 
-	// add map folder to search path
-	std::vector<std::string> searchPath;
-	searchPath.push_back("maps");
-	FileUtils::getInstance()->setSearchPaths(searchPath);
+
+	FileUtils::getInstance()->addSearchPath("maps");
 	//////////////////////////////////////////////////////////////
 
 
@@ -695,8 +693,8 @@ void MenuScene::draw_grid(std::string map)
 	std::string content = FileUtils::getInstance()->getStringFromFile(map);
 	rapidjson::Document document;
 	if (document.Parse<0>(content.c_str()).HasParseError()) {
-		//CCLOG("PARSE ERROR");
-		throw "Parse error";
+		CCLOG("PARSE ERROR");
+		//throw "Parse error";
 	}
 
 	Size DesResolution = Director::getInstance()->getWinSize();
@@ -776,7 +774,7 @@ void MenuScene::draw_grid(std::string map)
 														tp = SpriteType::USER;
 													}
 													else {
-														throw "Type doesn't exist.";
+														CCLOG( "Type doesn't exist.");
 													}
 
 
@@ -837,8 +835,8 @@ void MenuScene::load_maps()
 
 	rapidjson::Document document;
 	if (document.Parse<0>(content.c_str()).HasParseError()) {
-		//CCLOG("PARSE ERROR");
-		throw "Parse error";
+		CCLOG("PARSE ERROR");
+		//throw "Parse error";
 	}
 
 
