@@ -109,10 +109,11 @@ void MapTile::move(Ref* scene, Dir d, SEL_CallFuncN callback_fn)
 }
 
 
-void MapTile::move(Ref* scene, float time, float delta_x, float delta_y, SEL_CallFuncN callback_fn)
+void MapTile::move(Ref* scene, float time, float delta_x, float delta_y, const std::function<void()> & callback)
 {
-	FiniteTimeAction* actionMove = MoveTo::create(time, Vec2(_tile->getPositionX() + delta_x, _tile->getPositionY() + delta_y));
 
-	FiniteTimeAction* actionMoveDone = CallFuncN::create(scene, callback_fn);
-	_tile->runAction(Sequence::create(actionMove, actionMoveDone, NULL));
+
+	FiniteTimeAction* actionMove = MoveBy::create(time, Vec2(delta_x, delta_y));
+	_tile->runAction(Sequence::create(actionMove, CallFunc::create(callback), NULL));
+
 }

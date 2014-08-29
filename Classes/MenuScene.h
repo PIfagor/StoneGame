@@ -50,9 +50,9 @@ private:
 	void make_move();
 	void check_top_tiles(int);
 	void update_score();
-	void show_menu();
-	void hide_menu();
-	void handle_menu();
+	void show_menu(Ref* node);
+	void hide_menu(Ref* node);
+	void handle_menu(Ref* node);
 	void check_level_end();
 	void clear_map();
 
@@ -63,6 +63,7 @@ private:
 	void load_maps();
 	void addListeners();
 
+	Sprite* AceCart();
 	
 	struct move_controller {
 		Dir		_direction;
@@ -104,6 +105,8 @@ private:
 	EventListener*				_listener;
 	Vec2						_pointerJoistick;
 	bool						_can_make_move=false;
+
+	//MenuLayer*					_menu_layer;
 #ifdef _WIN32
 	CXBOXController *	_player;
 	bool				_connected_controller;

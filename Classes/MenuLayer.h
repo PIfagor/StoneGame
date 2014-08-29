@@ -2,6 +2,7 @@
 #define _MENU_LAYER_H_
 
 #include "cocos2d.h"
+#include "Applic.h"
 
 USING_NS_CC;
 
@@ -12,9 +13,14 @@ public:
 	virtual bool init();
 
 	void menuCloseCallback(Ref*);
+	void setResults(Results);
 
 	CREATE_FUNC(MenuLayer);
-
+private:
+	
+	void reloadMap(Ref *);
+	void nextMap(Ref *);
+	void backToMap(Ref *);
 };
 
 

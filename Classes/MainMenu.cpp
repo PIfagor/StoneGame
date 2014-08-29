@@ -66,14 +66,45 @@ bool MainMenu::init()
 	/*auto resumeCallback = std::bind(&App::resumeGame, App::get(), this);
 	auto resumeGame = MenuItemImage::create("resume.png", "resume.png", resumeCallback);
 	resumeGame->setPosition(Vec2(200, 500));*/
+	SpriteFrameCache* cache = SpriteFrameCache::getInstance();
+	cache->addSpriteFramesWithFile("animations/aceOfHeart.plist");
+
+	SpriteBatchNode* spritebatch = SpriteBatchNode::create("animations/aceOfHeartAtlas.png");
+	addChild(spritebatch);
+
+
+	Vector<SpriteFrame*> animFrames(25);
+	char str[100] = { 0 };
+	for (int i = 1; i <26; i++)
+	{
+		sprintf(str, "%d.png", i);
+		//auto frame = SpriteFrame::create(str, Rect(0, 0, 45, 45)); //we assume that the sprites' dimentions are 40*40 rectangles.
+		auto frame = SpriteFrameCache::getInstance()->spriteFrameByName(str);
+		animFrames.pushBack(frame);
+	}
+
+	auto animation = Animation::createWithSpriteFrames(animFrames, 0.08f);
+	auto sprite2 = Sprite::createWithSpriteFrameName("1.png");
+	sprite2->setPosition(Vec2(100, 100));
+	sprite2->setAnchorPoint(Vec2(1, 0));
+	sprite2->setPosition(Vec2(desSize.width, 0));
+
+	auto action = RepeatForever::create(Animate::create(animation));
+	sprite2->runAction(action);
+	addChild(sprite2, 2);
 
 	auto menu = Menu::create(startGame, NULL);
 	menu->setPosition(Point::ZERO);
 	this->addChild(menu,1);
 	
 	this->schedule(schedule_selector(MainMenu::update));
+	
+
+
+
 	return true;
-}
+
+	}
 
 void MainMenu::update(float dt)
 {

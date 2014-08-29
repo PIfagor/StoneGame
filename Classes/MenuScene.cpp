@@ -21,6 +21,7 @@ using namespace CocosDenshion;
 // tiles bollean checkins
 bool haveExit	=	false;
 bool haveKey	=   false;
+bool keyBounds  =	true;
 
 Scene* MenuScene::createScene()
 {
@@ -34,12 +35,13 @@ Scene* MenuScene::createScene()
 
 #define PLAY_CRYSTAL SimpleAudioEngine::getInstance()->playEffect(CCFileUtils::sharedFileUtils()->fullPathForFilename("pick_crystal.mp3").c_str());
 #define WALK SimpleAudioEngine::getInstance()->playEffect(CCFileUtils::sharedFileUtils()->fullPathForFilename("walk.mp3").c_str());
-
+#define BGMUS SimpleAudioEngine::getInstance()->playBackgroundMusic(CCFileUtils::sharedFileUtils()->fullPathForFilename("bg_music.mp3").c_str(),true);
 
 
 
 bool MenuScene::init()
 {
+	
 	if (!Layer::init())
 	{
 		return false;
@@ -57,27 +59,29 @@ bool MenuScene::init()
 	
 	
 	this->addChild(this->_pLabel, 1);
+
 	auto wiew = Director::getInstance()->getOpenGLView()->getDesignResolutionSize();
 
 
-	auto callback = std::bind(&MenuScene::menuReloadCallback, this, this);
-	MenuItemImage *pCloseItem = MenuItemImage::create("reload.png","reload.png",callback);
+	//auto callback = std::bind(&MenuScene::menuReloadCallback, this, this);
+	auto callback = std::bind(&MenuScene::show_menu, this, this);
+	MenuItemImage *pCloseItem = MenuItemImage::create("cat.png","cat.png",callback);
 		
-	pCloseItem->setAnchorPoint(Vec2(1, 1));
-	pCloseItem->setPosition(Vec2(wiew.width, wiew.height));
+	pCloseItem->setAnchorPoint(Vec2(0, 1));
+	pCloseItem->setPosition(Vec2(0, wiew.height));
 
 	Menu* pMenu = Menu::create(pCloseItem, NULL);
 	pMenu->setPosition(Vec2(0, 0));
 	this->addChild(pMenu, 2);
 	// add "HelloWorld" splash screen"
-	Sprite* pSprite = Sprite::create("bg.png");
+	Sprite* pSprite = Sprite::create("background.png");
 	// position the sprite on the center of the screen
 	pSprite->setPosition(Vec2(visibleSize.width / 2 + origin.x, visibleSize.height / 2 + origin.y));
 	this->addChild(pSprite, 0);
 
 	Sprite* pMarker = Sprite::create("marker.png");
 	pMarker->setPosition(Vec2(0, 0));
-	this->addChild(pMarker, 0);
+	//this->addChild(pMarker, 0);
 
 	this->schedule(schedule_selector(MenuScene::update));
 
@@ -105,9 +109,9 @@ bool MenuScene::init()
 	_score = 0;
 	_is_running = true;
 
-	MenuLayer* menu_layer = MenuLayer::getMenu(Color4B(0, 0, 0, 200));
-	this->addChild(menu_layer, 10, Tags::MENU_TAG);
-	menu_layer->setVisible(false);
+	 _menu_layer = MenuLayer::getMenu(Color4B(0, 0, 0, 200));
+	this->addChild(_menu_layer, 10, Tags::MENU_TAG);
+	_menu_layer->setVisible(false);
 
 #ifdef _WIN32
 	_player = new CXBOXController(1);
@@ -119,17 +123,27 @@ bool MenuScene::init()
 	//Director::getInstance()->getTouchDispatcher()->removeDelegate(this);
 	//Director::getInstance()->getTouchDispatcher()->addStandardDelegate(this, 0);
 
-	auto backBtn = MenuItemImage::create("back_midle.png", "back_midle.png", [](Ref*) {
+	/*auto backBtn = MenuItemImage::create("back_midle.png", "back_midle.png", [](Ref*) {
 		App::get()->gotoWorldMap(NULL);
 	});
 	
 	backBtn->setAnchorPoint(Vec2(0, 1));
-	backBtn->setPosition(Vec2(0, wiew.height));
+	backBtn->setPosition(Vec2(0, wiew.height));*/
 
-	auto menu = Menu::create(backBtn, NULL);
+	/*auto menu = Menu::create(backBtn, NULL);
 	menu->setPosition(Point::ZERO);
-	this->addChild(menu, 2);
+	this->addChild(menu, 2);*/
+
+	//AceCart method
+	SpriteFrameCache* cache = SpriteFrameCache::getInstance();
+	cache->addSpriteFramesWithFile("animations/aceOfHeart.plist");
+	//AceCart method
+	SpriteBatchNode* spritebatch = SpriteBatchNode::create("animations/aceOfHeartAtlas.png");
+	addChild(spritebatch);
+
+	BGMUS
 	addListeners();
+
 	return true;
 }
 
@@ -163,8 +177,11 @@ void MenuScene::check_level_end()
 	if (this->_crystal_number == 0&&!haveExit) {
 		App::get()->setConfig(true);
 		App::get()->saveUserData();
-		next_map();
+		App::get()->setResult(WIN);
+		handle_menu(NULL);
+		//next_map();
 	}
+	App::get()->setResult(PAUSE);
 }
 
 void MenuScene::clear_map()
@@ -179,6 +196,7 @@ void MenuScene::clear_map()
 
 		}
 		delete[] _grid;
+		keyBounds = true;
 	}
 }
 
@@ -189,27 +207,28 @@ void MenuScene::stop_vibration(float time)
 }
 #endif
 
-void MenuScene::handle_menu()
+void MenuScene::handle_menu(Ref* node)
 {
 	this->_is_running = !this->_is_running;
 	if (this->_is_running) {
 		hide_menu();
 	}
 	else {
-		show_menu();
+		show_menu(node);
 	}
 }
 
-void MenuScene::show_menu()
+void MenuScene::show_menu(Ref* node)
 {
 	MenuLayer* menu = (MenuLayer*)this->getChildByTag(Tags::MENU_TAG);
+	_menu_layer->setResults(App::get()->getResult());
 	menu->setVisible(true);
 
 	//Director::getInstance()->getTouchDispatcher()->removeDelegate(this);
 	//Director::getInstance()->getTouchDispatcher()->addStandardDelegate(menu, 0);
 }
 
-void MenuScene::hide_menu()
+void MenuScene::hide_menu(Ref* node)
 {
 	MenuLayer* menu = (MenuLayer*)this->getChildByTag(Tags::MENU_TAG);
 	menu->setVisible(false);
@@ -239,7 +258,7 @@ void MenuScene::check_controller()
 		}
 
 		if (_player->hasBtnBeenPressed(CXBOXController::BUTTON_START)) {
-			handle_menu();
+			handle_menu(NULL);
 		}
 
 		if (_player->hasBtnBeenPressed(CXBOXController::BUTTON_LB)) {
@@ -310,7 +329,7 @@ void MenuScene::check_movement()
 
 
 					//// swap stone
-					_grid[nextId].move(this, time, offset_x, offset_y, NULL);
+					_grid[nextId].move(this, time, offset_x, offset_y, nullptr);
 					std::swap(_grid[next], _grid[nextId]);
 
 					_fallable.push_back(next);
@@ -411,12 +430,19 @@ void MenuScene::check_top_tiles(int user_pos)
 
 	// LIST TILES THAT KILL USER
 	if (_grid[bottom_id].getType() == SpriteType::USER
-		&&	_grid[user_pos].getType() == SpriteType::STONE)
+		&& (_grid[user_pos].getType() == SpriteType::STONE||_grid[user_pos].getType() == SpriteType::GLASS))
 	{
 		_mv._is_moving = true;
 		CCLOG("USER HIT");
+		App::get()->setResult(LOSE);
+		
 	}
-
+	if (_grid[bottom_id].getType() == SpriteType::KEY
+		&&	_grid[user_pos].getType() == SpriteType::STONE)
+	{
+		keyBounds = false;
+		CCLOG("EXIT UNLOCK");
+	}
 	float offset_y = -free_cells * ConfigVals::TILE_HEIGHT;
 	float offset_x = 0;
 	float time = 0.2 * (float)free_cells;
@@ -433,8 +459,16 @@ void MenuScene::check_top_tiles(int user_pos)
 		|| _grid[top_id].getType() == SpriteType::NONE
 		) {
 
+
 		if (_grid[top_id].getSprite()->isVisible()) {
-			_grid[top_id].move(this, time, offset_x, offset_y, NULL);
+			auto callback = std::function<void()>();
+			if (App::get()->getResult() == LOSE) {
+				callback = [this] {
+					CCLOG("You lost");
+					show_menu(NULL);
+				};
+			}
+				_grid[top_id].move(this, time, offset_x, offset_y, callback);
 		}
 
 		std::swap(_grid[top_id], _grid[top_id - free_cells * ConfigVals::MAP_WIDTH]);
@@ -713,17 +747,24 @@ void MenuScene::draw_grid(std::string map)
 			int index = t * ConfigVals::MAP_WIDTH + j;
 
 			std::string type = document[index]["type"].GetString();
-
+			
 			SpriteType tp = SpriteType::NONE;
 
 			if (type != NONE) {
 				Sprite* temp;
 
 				std::string tex = document[index]["texture"].GetString();
-				temp = Sprite::create(tex.c_str());
+				if (type == CRYSTAL){
+					temp = AceCart();
+				}
+				
+				else{
+					temp = Sprite::create(tex.c_str());
+				}
 
 				if (type == SAND) {
 					tp = SpriteType::SAND;
+					temp->setScale(0.5);
 				}
 				else
 
@@ -765,6 +806,7 @@ void MenuScene::draw_grid(std::string map)
 											else
 												if (type == KEY) {
 													haveKey = true;
+													temp->setScale(0.5);
 													tp = SpriteType::KEY;
 												}
 												else
@@ -787,7 +829,7 @@ void MenuScene::draw_grid(std::string map)
 													this->addChild(temp, Tags::TILE, Tags::TILE);
 
 													_grid[absolute_index] = MapTile(tp, temp, absolute_index);
-
+																											
 													if (tp == SpriteType::GLASS) {
 														_grid[absolute_index].setBlocked(true);
 													}
@@ -906,7 +948,35 @@ bool MenuScene::isOnBounds(int index)
 		}
 		return true;
 	}
+
+	if (_grid[index].getType() == SpriteType::KEY){
+		return keyBounds;
+	}
 	return false;
+}
+
+Sprite* MenuScene::AceCart()
+{
+	
+	Vector<SpriteFrame*> animFrames(25);
+	char str[100] = { 0 };
+	for (int i = 1; i <26; i++)
+	{
+		sprintf(str, "%d.png", i);
+		//auto frame = SpriteFrame::create(str, Rect(0, 0, 45, 45)); //we assume that the sprites' dimentions are 40*40 rectangles.
+		auto frame = SpriteFrameCache::getInstance()->spriteFrameByName(str);
+		animFrames.pushBack(frame);
+	}
+
+	auto animation = Animation::createWithSpriteFrames(animFrames, 0.12f);
+	auto sprite2 = Sprite::createWithSpriteFrameName("1.png");
+	sprite2->setPosition(Vec2(100, 100));
+
+
+	auto action = RepeatForever::create(Animate::create(animation));
+	sprite2->runAction(action);
+
+	return sprite2;
 }
 
 MenuScene::~MenuScene()

@@ -24,7 +24,7 @@ public:
 	void move(Ref*, Dir, SEL_CallFuncN);
 
 	// movement with custom time and offset
-	void move(Ref*, float, float, float, SEL_CallFuncN);
+	void move(Ref*, float, float, float, const std::function<void()> &);
 
 	bool isblocked();
 	void setBlocked(bool);
@@ -34,7 +34,6 @@ private:
 	Sprite*	_tile;
 	int			_id;
 	bool		_is_blocked;
-
 	bool		_underHero;
 };
 

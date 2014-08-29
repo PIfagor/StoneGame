@@ -25,6 +25,7 @@ USING_NS_CC;
 App::App() :
 _canTouch(true),
 _resolution(Resolution::REGULAR_RES),
+_result(PAUSE),
 #ifdef _WIN32
  _player(new CXBOXController(1)),
 #endif

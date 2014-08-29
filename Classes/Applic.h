@@ -5,6 +5,7 @@
 #include "cocos2d.h"
 //#include "Map.h"
 //#include "Location.h"
+#include "Enums.h"
 #include "Constants.h"
 #include "json/document.h"	
 #ifdef _WIN32
@@ -70,7 +71,9 @@ public:
 	const bool & reloadOnTheFly() const { return _reloadOnTheFly; };
 	void setReloadOnTheFly(const bool & state) { _reloadOnTheFly = state; };
 
-
+	void	setResult(Results res)	{ _result = res; };
+	Results getResult()				{ return _result; };
+	
 #ifdef _WIN32
 	CXBOXController *	_player;
 #endif
@@ -95,7 +98,7 @@ private:
 	int								_currentWorld = 0;
 	int								_currentMap = 0;
 
-
+	Results							_result;
 
 };
 
