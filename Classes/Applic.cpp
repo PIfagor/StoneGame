@@ -33,6 +33,8 @@ _reloadOnTheFly(false)
 
 {
 	CCLOG("App constructor");
+	_currentWorld = 0;
+	_currentMap = 0;
 
 	//for debug
 	setReloadOnTheFly(true);

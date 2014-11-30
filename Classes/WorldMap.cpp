@@ -7,6 +7,8 @@ USING_NS_CC;
 
 WorldMap::WorldMap()
 {
+	deltaX = 260;
+	deltaY = 175;
 }
 
 WorldMap::~WorldMap()

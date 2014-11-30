@@ -7,6 +7,8 @@ USING_NS_CC;
 
 WorldOne::WorldOne()
 {
+	_deltaX = 135;
+	_deltaY = 130;
 }
 
 WorldOne::~WorldOne()

@@ -27,8 +27,8 @@ private:
 	void openActiveWorld(int number);
 	
 	//int		_currentWorld = 0;
-	int deltaX = 260;
-	int deltaY = 175;
+	int deltaX;
+	int deltaY;
 #ifdef _WIN32
 		cocos2d::Sprite*		_arrow;
 		void		check_controller();

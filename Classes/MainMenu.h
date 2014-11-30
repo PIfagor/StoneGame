@@ -16,6 +16,11 @@ public:
 private:
 	MainMenu();
 	DISALLOW_COPY_AND_ASSIGN(MainMenu);
+
+	void playLights();
+
+	cocos2d::Sprite* light1;
+	cocos2d::Sprite* light2;
 };
 
 #endif 

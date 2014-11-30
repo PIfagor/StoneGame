@@ -7,6 +7,8 @@ USING_NS_CC;
 
 WorldThree::WorldThree()
 {
+	_deltaX = 135;
+	_deltaY = 130;
 }
 
 WorldThree::~WorldThree()

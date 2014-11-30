@@ -22,8 +22,8 @@ private:
 
 	std::vector<cocos2d::Sprite*> _levels;
 	cocos2d::EventListener*	_listener;
-	int _deltaX = 135;
-	int _deltaY = 130;
+	int _deltaX;
+	int _deltaY;
 
 	cocos2d::Sprite* 	_arrow;
 };

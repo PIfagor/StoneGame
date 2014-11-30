@@ -7,6 +7,8 @@ USING_NS_CC;
 
 WorldTwo::WorldTwo()
 {
+	_deltaX = 135;
+	_deltaY = 130;
 }
 
 WorldTwo::~WorldTwo()

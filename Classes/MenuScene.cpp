@@ -47,6 +47,8 @@ bool MenuScene::init()
 		return false;
 	}
 
+	_can_make_move=false;
+
 	Size visibleSize = Director::getInstance()->getVisibleSize();
 	Vec2 origin = Director::getInstance()->getVisibleOrigin();
 
@@ -74,10 +76,10 @@ bool MenuScene::init()
 	pMenu->setPosition(Vec2(0, 0));
 	this->addChild(pMenu, 2);
 	// add "HelloWorld" splash screen"
-	Sprite* pSprite = Sprite::create("background.png");
-	// position the sprite on the center of the screen
-	pSprite->setPosition(Vec2(visibleSize.width / 2 + origin.x, visibleSize.height / 2 + origin.y));
-	this->addChild(pSprite, 0);
+	//Sprite* pSprite = Sprite::create("background.png");
+	//// position the sprite on the center of the screen
+	//pSprite->setPosition(Vec2(visibleSize.width / 2 + origin.x, visibleSize.height / 2 + origin.y));
+	//this->addChild(pSprite, 0);
 
 	Sprite* pMarker = Sprite::create("marker.png");
 	pMarker->setPosition(Vec2(0, 0));
@@ -211,7 +213,7 @@ void MenuScene::handle_menu(Ref* node)
 {
 	this->_is_running = !this->_is_running;
 	if (this->_is_running) {
-		hide_menu();
+		//hide_menu();
 	}
 	else {
 		show_menu(node);
@@ -764,7 +766,7 @@ void MenuScene::draw_grid(std::string map)
 
 				if (type == SAND) {
 					tp = SpriteType::SAND;
-					temp->setScale(0.5);
+					//temp->setScale(0.5);
 				}
 				else
 
@@ -819,7 +821,7 @@ void MenuScene::draw_grid(std::string map)
 														CCLOG( "Type doesn't exist.");
 													}
 
-
+													
 													temp->setAnchorPoint(Vec2(0, 0));
 
 													float x = j * ConfigVals::TILE_WIDTH;
@@ -827,6 +829,13 @@ void MenuScene::draw_grid(std::string map)
 
 													temp->setPosition(Vec2(x + offset_left, y + offset_bottom));
 													this->addChild(temp, Tags::TILE, Tags::TILE);
+
+													if (type != BORDER) {
+														auto lvlBack = Sprite::create("lvlBack.png");
+														lvlBack->setAnchorPoint(Vec2(0, 0));
+														lvlBack->setPosition(Vec2(x + offset_left, y + offset_bottom));
+														this->addChild(lvlBack);
+													}
 
 													_grid[absolute_index] = MapTile(tp, temp, absolute_index);
 																											

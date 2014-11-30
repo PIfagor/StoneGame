@@ -95,8 +95,8 @@ private:
 	Resolution						_resolution;
 	//std::vector<Location>			_locations;
 	bool							_reloadOnTheFly;
-	int								_currentWorld = 0;
-	int								_currentMap = 0;
+	int								_currentWorld;
+	int								_currentMap;
 
 	Results							_result;
 

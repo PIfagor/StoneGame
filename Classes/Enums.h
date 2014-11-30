@@ -13,6 +13,6 @@ enum ConfigVals {
 	VIBRATION_POWER = 32000
 };
 
-enum Tags { TILE, MENU_TAG };
+enum Tags { NON, TILE, MENU_TAG };
 
 #endif

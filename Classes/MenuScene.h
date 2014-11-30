@@ -104,7 +104,7 @@ private:
 
 	EventListener*				_listener;
 	Vec2						_pointerJoistick;
-	bool						_can_make_move=false;
+	bool						_can_make_move;
 
 	//MenuLayer*					_menu_layer;
 #ifdef _WIN32
