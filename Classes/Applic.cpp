@@ -128,9 +128,11 @@ App::userData::userData()
 	for (size_t i = 0; i < COUNT_WORLDS; i++)
 	{
 		_complitedLvls.push_back(std::vector<bool>());
+		_availableLvls.push_back(std::vector<bool>());
 		for (size_t j = 0; j < COUNT_LVLS_ON_1_WORLD; j++)
 		{
 			_complitedLvls[i].push_back(0);
+			_availableLvls[i].push_back(1);
 		}
 
 	}

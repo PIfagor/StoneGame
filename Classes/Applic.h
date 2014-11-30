@@ -18,6 +18,7 @@ public:
 	// data that needs to be saved is located here
 	struct userData {
 		std::vector<std::vector<bool>> _complitedLvls;
+		std::vector<std::vector<bool>> _availableLvls;
 		userData();
 
 		std::string toStr() const;

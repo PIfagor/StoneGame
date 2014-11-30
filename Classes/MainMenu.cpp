@@ -24,8 +24,8 @@ Scene* MainMenu::createScene()
 	return scene;
 }
 
-#define PLAY_THUNDER SimpleAudioEngine::getInstance()->playEffect(CCFileUtils::sharedFileUtils()->fullPathForFilename("thunder_2.mp3").c_str());
-#define BGMUS SimpleAudioEngine::getInstance()->playBackgroundMusic(CCFileUtils::sharedFileUtils()->fullPathForFilename("rain.mp3").c_str(),true);
+#define PLAY_THUNDER //SimpleAudioEngine::getInstance()->playEffect(CCFileUtils::sharedFileUtils()->fullPathForFilename("thunder_2.mp3").c_str());
+#define BGMUS //SimpleAudioEngine::getInstance()->playBackgroundMusic(CCFileUtils::sharedFileUtils()->fullPathForFilename("rain.mp3").c_str(),true);
 
 
 void MainMenu::playLights()
@@ -78,11 +78,11 @@ bool MainMenu::init()
 
 	auto sprite = Sprite::create("alice_main.png");
 	sprite->setPosition(Vec2(visibleSize.width / 2 + origin.x, visibleSize.height / 2 + origin.y));
-	addChild(sprite, 1);
+	addChild(sprite, 0);
 
 	auto alice_overlay = Sprite::create("main/alice_overlay.png");
 	alice_overlay->setPosition(Vec2(512, 464));
-	addChild(alice_overlay,2);
+	addChild(alice_overlay, 1);
 
 	auto fadeTo		= FadeTo::create(1, 100);
 	auto fadeFrom	= FadeTo::create(0.9, 255);
@@ -91,17 +91,17 @@ bool MainMenu::init()
 	auto glass_layer = Sprite::create("main/glass_layer.png");
 	glass_layer->setPosition(Vec2(511, 448));
 	glass_layer->setOpacity(255*0.7);
-	addChild(glass_layer, 4);
+	addChild(glass_layer, 2);
 
 	light1 = Sprite::create("main/lightning_overlay_1.png");
 	light1->setPosition(513, 463);
-	addChild(light1, 3);
+	addChild(light1, 2);
 	light1->setOpacity(0);
 	playLights();
 
 	light2 = Sprite::create("main/lightning_overlay_2.png");
 	light2->setPosition(513, 463);
-	addChild(light2, 3);
+	addChild(light2, 2);
 	light2->setOpacity(0);
 
 
@@ -110,7 +110,7 @@ bool MainMenu::init()
     clipper->setContentSize(  Size(227, 363) );
 	clipper->setAnchorPoint(Vec2(0.5, 0.5));
     clipper->setPosition( Vec2(514, 464) );
-    addChild(clipper, 2);
+    addChild(clipper, 1);
 
     auto stencil = DrawNode::create();
     Vec2 figure[8];
@@ -144,17 +144,17 @@ bool MainMenu::init()
 
 	auto moon_overlay = Sprite::create("main/moon_overlay.png");
 	moon_overlay->setPosition(564, 630);
-	addChild(moon_overlay, 2);
+	addChild(moon_overlay, 1);
 	moon_overlay->runAction( RepeatForever::create(Sequence::create(FadeTo::create(1.5, 0), FadeTo::create(1.3, 255), NULL)) );
 
 	auto sky1 = Sprite::create("main/sky_overlay_1.png");
 	sky1->setPosition(511, 555);
-	addChild(sky1, 2);
+	addChild(sky1, 1);
 	sky1->runAction( RepeatForever::create(Sequence::create(FadeTo::create(1.5, 0), FadeTo::create(1.3, 255), NULL)) );
 
 	auto sky2 = Sprite::create("main/sky_overlay_2.png");
 	sky2->setPosition(510, 559);
-	addChild(sky2, 2);
+	addChild(sky2, 1);
 	sky2->runAction( RepeatForever::create(Sequence::create(FadeTo::create(1.7, 255), FadeTo::create(1.5, 0), NULL)) );
 
 

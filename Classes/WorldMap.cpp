@@ -66,58 +66,104 @@ bool WorldMap::init()
 	Size visibleSize = Director::getInstance()->getVisibleSize();
 	Vec2 origin = Director::getInstance()->getVisibleOrigin();
 
-	auto sprite = Sprite::create("papyrus.png");
+	auto sprite = Sprite::create("map/fon_main_2.png");
 	assert(sprite != NULL);
 	sprite->setPosition(Vec2(visibleSize.width / 2 + origin.x, visibleSize.height / 2 + origin.y));
 	addChild(sprite, 0);
 
-	
 
-	auto city1 = Sprite::create("potlava.png");
-	city1->setPosition(Vec2(215 + deltaX * 0, 560 - deltaY * 0));
-	addChild(city1, 1);
+	//////////////////////////////
 
-	auto city2 = Sprite::create("globuno.png");
-	city2->setPosition(Vec2(215 + deltaX * 1, 560 - deltaY * 1));
-	addChild(city2, 1);
+	auto world1 = MenuItemImage::create("map/overlay_1.png", "map/click_overlay_1.png",  [this](Ref* ref) { \
+		openActiveWorld(0);
+	}); 
+	world1->setPosition(673, 577); 
 
-	auto city3 = Sprite::create("lusenko.png");
-	city3->setPosition(Vec2(215 + deltaX * 2, 560 - deltaY * 2));
-	addChild(city3, 1);
+	auto world2 = MenuItemImage::create("map/overlay_2.png", "map/click_overlay_2.png",  [this](Ref* ref) { \
+		openActiveWorld(1);
+	}); 
+	world2->setPosition(817, 485);
 
-	auto listener = cocos2d::EventListenerTouchOneByOne::create();
-	_listener = listener;
-	listener->setSwallowTouches(true);
+	auto world3 = MenuItemImage::create("map/overlay_3.png", "map/click_overlay_3.png",  [this](Ref* ref) { \
+		openActiveWorld(2);
+	}); 
+	world3->setPosition(676, 377);
 
-	listener->onTouchBegan = [city1, city2, city3, this](cocos2d::Touch* touch, cocos2d::Event* event)
-	{
-		cocos2d::Vec2 p = touch->getLocation();
-		if (city1->getBoundingBox().containsPoint(p) && App::get()->canTouch())
-		{
-			//App::get()->gotoWorldOne(NULL);
-			openActiveWorld(0);
-			return true;
-		}
-		if (city2->getBoundingBox().containsPoint(p) && App::get()->canTouch())
-		{
+	auto world4 = MenuItemImage::create("map/overlay_4.png", "map/click_overlay_4.png",  [this](Ref* ref) { \
+		
+	}); 
+	world4->setPosition(809, 268);
 
-			//App::get()->gotoWorldTwo(NULL);
-			openActiveWorld(1);
-			return true;
-		}
-		if (city3->getBoundingBox().containsPoint(p) && App::get()->canTouch())
-		{
-			//App::get()->gotoWorldThree(NULL);
-			openActiveWorld(2);
-			return true;
-		}
-		return false;
-	};
+	Menu* worldMenu  = Menu::create(world1, world2, world3, world4, nullptr);
+    worldMenu->setPosition(Point::ZERO);
+	addChild(worldMenu, 1);
 
 
-	this->schedule(schedule_selector(WorldMap::update));
+	/// icons
+	auto icon1 = Sprite::create("map/icon_1.png");
+	icon1->setPosition(662, 569);
+	addChild(icon1, 2);
 
-	Director::getInstance()->getEventDispatcher()->addEventListenerWithFixedPriority(listener, 30);
+	auto icon2 = Sprite::create("map/icon_2.png");
+	icon2->setPosition(833, 472);
+	addChild(icon2, 2);
+
+	auto icon3 = Sprite::create("map/icon_3.png");
+	icon3->setPosition(663, 374);
+	addChild(icon3, 2);
+
+	auto icon4 = Sprite::create("map/icon_4.png");
+	icon4->setPosition(824, 251);
+	addChild(icon4, 2);
+
+
+
+
+	//auto city1 = Sprite::create("potlava.png");
+	//city1->setPosition(Vec2(215 + deltaX * 0, 560 - deltaY * 0));
+	//addChild(city1, 1);
+
+	//auto city2 = Sprite::create("globuno.png");
+	//city2->setPosition(Vec2(215 + deltaX * 1, 560 - deltaY * 1));
+	//addChild(city2, 1);
+
+	//auto city3 = Sprite::create("lusenko.png");
+	//city3->setPosition(Vec2(215 + deltaX * 2, 560 - deltaY * 2));
+	//addChild(city3, 1);
+
+	//auto listener = cocos2d::EventListenerTouchOneByOne::create();
+	//_listener = listener;
+	//listener->setSwallowTouches(true);
+
+	//listener->onTouchBegan = [city1, city2, city3, this](cocos2d::Touch* touch, cocos2d::Event* event)
+	//{
+	//	cocos2d::Vec2 p = touch->getLocation();
+	//	if (city1->getBoundingBox().containsPoint(p) && App::get()->canTouch())
+	//	{
+	//		//App::get()->gotoWorldOne(NULL);
+	//		openActiveWorld(0);
+	//		return true;
+	//	}
+	//	if (city2->getBoundingBox().containsPoint(p) && App::get()->canTouch())
+	//	{
+
+	//		//App::get()->gotoWorldTwo(NULL);
+	//		openActiveWorld(1);
+	//		return true;
+	//	}
+	//	if (city3->getBoundingBox().containsPoint(p) && App::get()->canTouch())
+	//	{
+	//		//App::get()->gotoWorldThree(NULL);
+	//		openActiveWorld(2);
+	//		return true;
+	//	}
+	//	return false;
+	//};
+
+
+	//this->schedule(schedule_selector(WorldMap::update));
+
+	//Director::getInstance()->getEventDispatcher()->addEventListenerWithFixedPriority(listener, 30);
 
 #ifdef _WIN32
 	 _arrow = Sprite::create("down_arrow.png");
